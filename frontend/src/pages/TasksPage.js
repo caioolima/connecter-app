@@ -27,7 +27,7 @@ const TasksPage = () => {
   const { username } = useParams();
   const [tasks, setTasks] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState({ firstName: '', email: '' });
+  const [user, setUser] = useState({ firstName: '', email: '', createdAt: '' });
   const [selectedTask, setSelectedTask] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
@@ -63,6 +63,7 @@ const TasksPage = () => {
             setUser({
               firstName: capitalizeFirstLetter(data.name),
               email: data.email,
+              createdAt: data.createdAt,
             });
           } else {
             console.error('Erro ao carregar informações do usuário:', response.statusText);
@@ -115,6 +116,12 @@ const TasksPage = () => {
     setShowLoginModal(false);
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Data não disponível.'; // Caso a data não esteja disponível
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };  
+
   return (
     <Container>
       <WidgetsContainer>
@@ -126,6 +133,9 @@ const TasksPage = () => {
             </InfoItem>
             <InfoItem>
               <strong>Email:</strong> {user.email}
+            </InfoItem>
+            <InfoItem>
+              <strong>Data de Criação:</strong> {formatDate(user.createdAt)} {/* Exibe a data de criação */}
             </InfoItem>
           </UserInfo>
         </UserWidget>
@@ -139,7 +149,7 @@ const TasksPage = () => {
                 <ActionButton
                   onClick={() => handleViewTask(task)}
                 >
-                  Ver Tarefa
+                  Detalhes
                 </ActionButton>
               </TaskItem>
             ))}
@@ -228,6 +238,7 @@ const TasksWidget = styled(Widget)`
 const UserWidget = styled(Widget)`
   flex: 1;
   max-width: 350px;
+  height: 320px;
   background: rgba(0, 0, 0, 0.7);
   
   h2 {
@@ -281,6 +292,7 @@ const ActionButton = styled.button`
   cursor: pointer;
   font-size: 1rem;
   margin-top: 0.5rem;
+  font-weight: bold;
   transition: background 0.3s ease;
 
   &:hover {

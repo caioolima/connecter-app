@@ -55,10 +55,11 @@ exports.getUserInfo = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Retornar informações do usuário, excluindo a senha
+    // Retornar informações do usuário, incluindo a data de criação
     res.json({
       name: user.name,
       email: user.email,
+      createdAt: user.createdAt // Inclua a data de criação aqui
     });
   } catch (err) {
     console.error('Error fetching user info:', err);

@@ -120,3 +120,24 @@ exports.completeTask = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Verificar tarefas concluídas
+exports.getCompletedTasks = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    // Buscar todas as tarefas associadas ao nome de usuário e com status concluído
+    const completedTasks = await UserTask.findAll({ 
+      where: { 
+        user: req.user.name,
+        taskStatus: true
+      } 
+    });
+
+    res.json(completedTasks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

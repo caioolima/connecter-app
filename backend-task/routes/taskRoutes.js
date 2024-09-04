@@ -5,7 +5,8 @@ const {
   updateTask,
   deleteTask,
   completeTask,
-  getTasksByUser // Importar o controlador
+  getTasksByUser,
+  getCompletedTasks // Importar o controlador
 } = require('../controllers/taskController');
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
@@ -22,5 +23,8 @@ router.get('/', getTasks);
 router.put('/:id', updateTask);
 router.delete('/:id', deleteTask);
 router.patch('/:id/complete', completeTask);
+// Roteamento para obter tarefas concluídas
+router.get('/tasks/completed', getCompletedTasks);
+
 
 module.exports = router;

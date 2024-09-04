@@ -14,7 +14,8 @@ const User = sequelize.define('User', {
         user.password = await bcrypt.hash(user.password, salt);
       }
     }
-  }
+  },
+  timestamps: true, // Adiciona automaticamente createdAt e updatedAt
 });
 
 User.prototype.matchPassword = async function(password) {
