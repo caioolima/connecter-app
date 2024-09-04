@@ -292,6 +292,7 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
     width: 100%;
+    margin: 5rem auto;
   `;
 
   const TaskCard = styled.div`
