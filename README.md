@@ -12,35 +12,40 @@ O Connecter App é uma aplicação web de gerenciamento de tarefas, desenvolvida
 ## Instalação
 ### Backend
 1. Clone o repositório:
-
+```bash
    git clone [https://github.com/caioolima/connecter-app-backend.git](https://github.com/caioolima/connecter-app-backend.git)
+```
 
 2. Instale as dependências:
-    
-    - cd task-manager
-    - cd backend-task
-    - npm install
+```bash
+    cd task-manager
+    cd backend-task
+    npm install
+```
 
 3. Configure o banco de dados:
     
-    Crie um banco de dados MySQL e ajuste as credenciais no arquivo .env.
+    - Crie um banco de dados MySQL e ajuste as credenciais no arquivo .env.
 
 4. Inicie o servidor:
-    
+```bash
     npm start
+```
 
 ## Frontend
 
  1. Clone o repositório:
+```bash
+     git clone [https://github.com/caioolima/connecter-app.git](https://github.com/caioolima/connecter-app.git)
+```
 
-    git clone [https://github.com/caioolima/connecter-app.git](https://github.com/caioolima/connecter-app.git)
+2. Instale as dependências:
 
- 2. Instale as dependências:
-
-    - cd task-manager
-    - cd frontend-task
-    - npm install
-
+```bash
+    cd task-manager
+    cd frontend-task
+    npm install
+```
 
 3. Configure o endpoint da API:
 
