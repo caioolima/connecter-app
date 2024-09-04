@@ -81,10 +81,11 @@ const Container = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  height: 60px; /* Ajustado para um cabeçalho mais compacto */
+  background: rgba(0, 0, 0, 0.8); /* Branco com 90% de opacidade */
+  height: 80px; /* Ajustado para um cabeçalho mais compacto */
+  padding: 0 10px;
   margin: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adiciona uma leve sombra */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adiciona uma leve sombra */
   width: 100%;
   top: 0;
   left: 0;
@@ -111,6 +112,8 @@ const MenuContainer = styled.div`
   display: flex;
   align-items: center;
   position: relative;
+  margin-right: 1.2rem;
+  color: white;
 `;
 
 const MenuIcon = styled.div`

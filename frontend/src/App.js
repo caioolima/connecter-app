@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
+import GlobalStyle from './styles/GlobalStyles'; // Importar o GlobalStyle
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import TasksPage from './pages/TasksPage';
@@ -13,6 +14,7 @@ import styled from 'styled-components';
 function App() {
   return (
     <ThemeProvider theme={theme}>
+      <GlobalStyle /> {/* Aplicar o estilo global */}
       <Router>
         <AppContainer>
           <Header />
