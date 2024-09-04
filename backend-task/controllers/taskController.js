@@ -41,6 +41,20 @@ exports.getTasks = async (req, res) => {
   }
 };
 
+// Obter tarefas de um usuário específico
+exports.getTasksByUser = async (req, res) => {
+  try {
+    const { username } = req.params;  // Obtém o nome de usuário da URL
+
+    // Buscar todas as tarefas associadas ao nome de usuário fornecido
+    const userTasks = await UserTask.findAll({ where: { user: username } });
+
+    res.json(userTasks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Atualizar tarefa
 exports.updateTask = async (req, res) => {
   try {

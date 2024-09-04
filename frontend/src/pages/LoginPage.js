@@ -67,7 +67,7 @@ const LoginPage = () => {
   return (
     <Container>
       <Form onSubmit={handleSubmit}>
-        <Logo src="/connecter-form-preview.png" alt="Connecter Intro" />
+      <Logo src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2FConnecter-form-preview.png?alt=media&token=da607aba-6727-4eee-a65a-968c88455272" alt="Connecter Intro" />
         <Title>Faça login com seu ID Connecter</Title>
         <EmailContainer>
           <Input

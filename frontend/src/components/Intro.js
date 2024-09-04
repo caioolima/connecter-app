@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const Intro = () => {
   return (
     <IntroContainer>
-      <Logo src="/connecter-intro.gif" alt="Connecter Intro" />
+      <Logo src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2FConnecter-intro.gif?alt=media&token=76402d79-bb17-45e7-a831-5a1fd29818ab" alt="Connecter Intro" />
       <Title>Connecter</Title>
       <LoginButton to="/login">Iniciar Sessão</LoginButton>
       <IntroText>

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode'; // Correção para importar jwtDecode corretamente
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [name, setName] = useState('');
-  const isAuthenticated = !!localStorage.getItem('token');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -27,7 +28,8 @@ const Header = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('name');
-    navigate(`/tasks/${encodeURIComponent(name)}`);
+    setIsAuthenticated(false);
+    navigate('/login');
   };
 
   const toggleMenu = () => {
@@ -38,14 +40,17 @@ const Header = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
 
+  // Verifica se a rota atual é '/login'
+  const isOnLoginPage = location.pathname === '/login';
+
   return (
     <Container>
       <StyledLink
         to={isAuthenticated ? `/tasks/${encodeURIComponent(name)}` : '/'}
       >
-        <Logo src="/connecter-logo-preview.png" alt="Connecter Logo" />
+        <Logo src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2Fconnecter-logo-preview.png?alt=media&token=08d82f35-dfb6-4552-8024-4efffe218839" alt="Connecter Logo" />
       </StyledLink>
-      {isAuthenticated && (
+      {isAuthenticated ? (
         <MenuContainer>
           <MenuIcon onClick={toggleMenu}>
             <FaBars />
@@ -72,6 +77,10 @@ const Header = () => {
             </TaskMenu>
           )}
         </MenuContainer>
+      ) : (
+        !isOnLoginPage && (
+          <LoginButton to="/login">Fazer Login</LoginButton>
+        )
       )}
     </Container>
   );
@@ -81,7 +90,7 @@ const Container = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(0, 0, 0, 0.8); /* Branco com 90% de opacidade */
+  background: rgba(0, 0, 0, 0.8); /* Branco com 80% de opacidade */
   height: 80px; /* Ajustado para um cabeçalho mais compacto */
   padding: 0 10px;
   margin: 0;
@@ -223,6 +232,27 @@ const TaskLink = styled(Link)`
   &:hover {
     background-color: #f1f1f1;
     color: #0051a8;
+  }
+`;
+
+const LoginButton = styled(Link)`
+  font-size: 1rem;
+  color: #f70073;
+  margin-right: 30px;
+  text-decoration: none;
+  padding: 0.5rem;
+  border: 1px solid #f70073;
+  border-radius: 6px;
+  background-color: transparent;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+
+  &:hover {
+    background-color: #f70073;
+    color: #fff;
   }
 `;
 

@@ -29,11 +29,11 @@ const TasksPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState({ firstName: '', email: '' });
   const [selectedTask, setSelectedTask] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log('Token:', token);
 
     if (token) {
       setIsAuthenticated(true);
@@ -57,9 +57,7 @@ const TasksPage = () => {
     } else {
       const fetchUserInfo = async () => {
         try {
-          const response = await fetch(
-            `http://localhost:5000/api/users/user/${encodeURIComponent(username)}`
-          );
+          const response = await fetch(`http://localhost:5000/api/users/user/${encodeURIComponent(username)}`);
           if (response.ok) {
             const data = await response.json();
             setUser({
@@ -67,10 +65,7 @@ const TasksPage = () => {
               email: data.email,
             });
           } else {
-            console.error(
-              'Erro ao carregar informações do usuário:',
-              response.statusText
-            );
+            console.error('Erro ao carregar informações do usuário:', response.statusText);
           }
         } catch (error) {
           console.error('Erro ao carregar informações do usuário:', error);
@@ -82,14 +77,13 @@ const TasksPage = () => {
 
     const fetchTasks = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/tasks`, // Corrigida a rota aqui
-          {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : '',
-            },
-          }
-        );
+        const apiUrl = isAuthenticated 
+          ? `http://localhost:5000/api/tasks/` 
+          : `http://localhost:5000/api/tasks/task/user/${encodeURIComponent(username)}`;
+
+        const response = await fetch(apiUrl, {
+          headers: isAuthenticated ? { Authorization: `Bearer ${token}` } : {},
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -103,14 +97,22 @@ const TasksPage = () => {
     };
 
     fetchTasks();
-  }, [navigate, username]);
+  }, [navigate, username, isAuthenticated]);
 
   const handleViewTask = (task) => {
-    setSelectedTask(task);
+    if (isAuthenticated) {
+      setSelectedTask(task);
+    } else {
+      setShowLoginModal(true);
+    }
   };
 
   const handleCloseModal = () => {
     setSelectedTask(null);
+  };
+
+  const handleCloseLoginModal = () => {
+    setShowLoginModal(false);
   };
 
   return (
@@ -136,7 +138,6 @@ const TasksPage = () => {
                 <TaskDate>{formatDate(task.createdAt)}</TaskDate>
                 <ActionButton
                   onClick={() => handleViewTask(task)}
-                  disabled={!isAuthenticated}
                 >
                   Ver Tarefa
                 </ActionButton>
@@ -161,6 +162,16 @@ const TasksPage = () => {
           </ModalContent>
         </TaskModal>
       )}
+
+      {showLoginModal && (
+        <LoginModal>
+          <LoginModalContent>
+            <CloseButton onClick={handleCloseLoginModal}>×</CloseButton>
+            <h2>Você precisa estar logado para ver esta tarefa</h2>
+            <LoginButton onClick={() => navigate('/login')}>Login</LoginButton>
+          </LoginModalContent>
+        </LoginModal>
+      )}
     </Container>
   );
 };
@@ -168,7 +179,7 @@ const TasksPage = () => {
 const Container = styled.div`
   display: flex;
   justify-content: center;
-  background: url('/connecter-background.jpg') no-repeat center center fixed;
+  background: url('https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2Fconnecter-background.jpg?alt=media&token=ed77c00e-74c3-4580-b494-ce581651ce09') no-repeat center center fixed;
   background-size: cover;
   padding: 2rem;
   min-height: 85vh;
@@ -234,127 +245,121 @@ const UserInfo = styled.div`
 const InfoItem = styled.div`
   margin-bottom: 0.75rem;
   font-size: 1.1rem;
-  color: #f0f0f0; /* Cor do texto para maior contraste */
-  font-weight: 500;
+  color: #dcdcdc;
 `;
 
 const TaskGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 `;
 
 const TaskItem = styled.div`
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.8); /* Fundo preto semitransparente */
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.9);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
-  }
+  text-align: center;
+  color: #dcdcdc;
 `;
 
 const TaskName = styled.h3`
-  margin: 0;
   font-size: 1.2rem;
-  color: #fff;
+  margin-bottom: 0.5rem;
 `;
 
 const TaskDate = styled.p`
   font-size: 0.9rem;
-  color: #ccc;
+  color: #bbb;
 `;
 
 const ActionButton = styled.button`
-  background: #ea4f97;
-  font-weight: bold;
-  color: #fff;
+  background: #ea4f97; /* Cor rosa para o botão */
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  color: white;
   padding: 0.5rem 1rem;
   cursor: pointer;
+  font-size: 1rem;
+  margin-top: 0.5rem;
   transition: background 0.3s ease;
-  font-size: 0.9rem;
 
   &:hover {
-    background: #f291be;
+    background: #f70073; /* Cor rosa mais escura para hover */
   }
 
   &:disabled {
-    background: #777;
+    background: #ccc;
     cursor: not-allowed;
   }
 `;
 
 const TaskModal = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  animation: ${fadeIn} 0.6s ease-in-out;
-`;
-
-const ModalContent = styled.div`
-  background: #000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9); /* Fundo preto semitransparente */
+  color: #dcdcdc;
+  border-radius: 10px;
   padding: 2rem;
-  border-radius: 15px;
   width: 80%;
   max-width: 600px;
-  color: #dcdcdc;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
-  animation: ${fadeIn} 0.6s ease-in-out;
-  position: relative;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+`;
+
+const LoginModal = styled(TaskModal)`
+  background: rgba(0, 0, 0, 0.9); /* Fundo preto semitransparente */
+`;
+
+const ModalContent = styled.div``;
+
+const LoginModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const ModalHeader = styled.div`
   margin-bottom: 1rem;
-  border-bottom: 1px solid #444;
-  padding-bottom: 1rem;
-  color: #fff; /* Cor do texto do título ajustada para branco */
-`;
-
-
-const ModalDate = styled.span`
-  font-size: 0.9rem;
-  color: #bbb;
-  display: block;
-  margin-top: 0.5rem;
 `;
 
 const ModalBody = styled.div`
-  margin-top: 1rem;
-  font-size: 1rem;
-  line-height: 1.5;
+  margin-bottom: 1rem;
 `;
 
 const CloseButton = styled.button`
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: #ff1a66;
-  color: white;
+  background: transparent;
   border: none;
-  border-radius: 50%;
-  padding: 0.5rem;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #dcdcdc;
+  font-size: 1.5rem;
   cursor: pointer;
-  font-size: 1.2rem;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #f70073; /* Cor rosa para hover */
+  }
+`;
+
+const ModalDate = styled.p`
+  font-size: 0.9rem;
+  color: #bbb;
+`;
+
+const LoginButton = styled.button`
+  background: #ea4f97; /* Cor rosa para o botão */
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
   transition: background 0.3s ease;
 
   &:hover {
-    background: #e01a5f;
+    background: #f70073; /* Cor rosa mais escura para hover */
   }
 `;
 
