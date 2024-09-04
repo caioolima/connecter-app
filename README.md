@@ -52,19 +52,19 @@ O Connecter App é uma aplicação web de gerenciamento de tarefas, desenvolvida
     - Certifique-se que o frontend esteja configurado para se comunicar com o backend em http://localhost:5000.
 
 4. Inicie a aplicação:
-
+```bash
     - npm start
+```
+## Uso
 
-### Uso
-    
-    - Registro: Acesse /register para criar uma nova conta.
-    - Login: Acesse /login para entrar na sua conta.
-    - Gerenciamento de tarefas: Após o login, você poderá criar, visualizar e editar suas tarefas.
+- **Registro:** Acesse `/register` para criar uma nova conta.
+- **Login:** Acesse `/login` para entrar na sua conta.
+- **Gerenciamento de tarefas:** Após o login, você poderá criar, visualizar e editar suas tarefas.
 
-### Contribuição
-    
-    - Sinta-se à vontade para contribuir com o projeto! Abra uma issue para - reportar bugs ou sugestões.
+## Contribuição
 
-### Licença
+- Sinta-se à vontade para contribuir com o projeto! Abra uma issue para reportar bugs ou sugestões.
 
-    - Este projeto está licenciado sob a Licença MIT.
+## Licença
+
+- Este projeto está licenciado sob a Licença MIT.
