@@ -49,7 +49,7 @@ O Connecter App é uma aplicação web de gerenciamento de tarefas, desenvolvida
 
 3. Configure o endpoint da API:
 
-    - Certifique-se que o frontend esteja configurado para se comunicar com o backend em http://localhost:5000.
+- Certifique-se que o frontend esteja configurado para se comunicar com o backend em http://localhost:5000.
 
 4. Inicie a aplicação:
 ```bash
