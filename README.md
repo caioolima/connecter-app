@@ -60,6 +60,7 @@ O Connecter App é uma aplicação web de gerenciamento de tarefas, desenvolvida
 - **Registro:** Acesse `/register` para criar uma nova conta.
 - **Login:** Acesse `/login` para entrar na sua conta.
 - **Gerenciamento de tarefas:** Após o login, você poderá criar, visualizar e editar suas tarefas.
+- **Acesso para usuários deslogados:** Usuários não autenticados podem visualizar os dados, mas não conseguem editá-los.
 
 ## Contribuição
 
