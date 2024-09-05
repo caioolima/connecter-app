@@ -1,49 +1,36 @@
-import React, { useState } from 'react';
+// src/components/RegisterForm.js
+import React from 'react';
 import styled from 'styled-components';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { useInput } from '../hooks/useInput';
 
-const RegisterPage = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const navigate = useNavigate();
+const RegisterForm = () => {
+  const { register, error } = useAuth();
+  const { value: name, onChange: handleNameChange } = useInput('');
+  const { value: email, onChange: handleEmailChange } = useInput('');
+  const { value: password, onChange: handlePasswordChange } = useInput('');
+  const { value: confirmPassword, onChange: handleConfirmPasswordChange } = useInput('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      return alert('Passwords do not match');
+      alert('As senhas não coincidem');
+      return;
     }
-    try {
-      const response = await fetch('http://localhost:5000/api/users/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Error registering');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      navigate(`/tasks/${name}`); // Corrigido para usar a variável name
-    } catch (error) {
-      console.error('Error registering:', error);
-      alert(error.message);
-    }
+    register(name, email, password);
   };
 
   return (
     <Container>
       <Form onSubmit={handleSubmit}>
-      <Logo src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2FConnecter-form-preview.png?alt=media&token=da607aba-6727-4eee-a65a-968c88455272" alt="Connecter Intro" />
+        <Logo
+          src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2FConnecter-form-preview.png?alt=media&token=da607aba-6727-4eee-a65a-968c88455272"
+          alt="Connecter Intro"
+        />
         <Title>
           Um ID Connecter é o que você precisa para acessar o gerenciador.
-          <br></br>
+          <br />
           <Text>
             Já tem um ID? <StyledLink to="/login">Faça login</StyledLink>
           </Text>
@@ -53,29 +40,30 @@ const RegisterPage = () => {
           type="text"
           placeholder="Nome"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={handleNameChange}
         />
         <Input
           type="email"
           placeholder="E-mail"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleEmailChange}
         />
         <Input
           type="password"
           placeholder="Senha"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={handlePasswordChange}
         />
         <Input
           type="password"
           placeholder="Confirme a Senha"
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={handleConfirmPasswordChange}
         />
         <ButtonContainer>
           <Button type="submit">Registrar</Button>
         </ButtonContainer>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </Form>
     </Container>
   );
@@ -183,4 +171,9 @@ const Button = styled.button`
   }
 `;
 
-export default RegisterPage;
+const ErrorMessage = styled.div`
+  color: red;
+  margin-top: 1rem;
+`;
+
+export default RegisterForm;

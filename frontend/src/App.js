@@ -8,9 +8,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import TasksPage from './pages/TasksPage';
 import UserTasksPage from './pages/UserTasksPage'; // Importar o novo componente
-import Header from './components/Header';
-import Footer from './components/Footer';
-import IntroPage from './components/Intro';
+import Header from './components/Header/Header';
+import Footer from './components/Footer/Footer';
+import IntroPage from './components/Header/Intro';
 import styled from 'styled-components';
 
 function App() {

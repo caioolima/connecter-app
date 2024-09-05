@@ -1,73 +1,40 @@
-// LoginPage.js
+// src/components/LoginForm.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate, Link } from 'react-router-dom'; // Importa Link do react-router-dom
-import { FaArrowRight } from 'react-icons/fa'; // Importa ícone de seta
-import { jwtDecode } from 'jwt-decode';
+import { Link } from 'react-router-dom';
+import { FaArrowRight } from 'react-icons/fa';
+import { useAuth } from '../hooks/useAuth';
+import { useInput } from '../hooks/useInput';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { login, error } = useAuth();
+  const { value: email, onChange: handleEmailChange } = useInput('');
+  const { value: password, onChange: handlePasswordChange } = useInput('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate();
-
-  const handleEmailChange = (e) => {
-    const emailValue = e.target.value;
-    setEmail(emailValue);
-
-    // Resetar para o estado inicial se o email for apagado ou inválido
-    if (!emailValue || !validateEmail(emailValue)) {
-      setShowPassword(false);
-    }
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleShowPassword = () => {
-    // Mostrar o campo de senha apenas se o email for válido
     if (validateEmail(email)) {
       setShowPassword(true);
     }
   };
 
-  const validateEmail = (email) => {
-    // Regex simples para validação de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Error logging in');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-
-      // Decodificar o token para obter o nome do usuário
-      const decodedToken = jwtDecode(data.token);
-      const userName = decodedToken.name || 'Usuário';
-
-      // Redirecionar para a página de tarefas com o nome do usuário
-      navigate(`/tasks/${encodeURIComponent(userName)}`);
-    } catch (error) {
-      console.error('Error logging in:', error);
-    }
+    login(email, password);
   };
 
   return (
     <Container>
       <Form onSubmit={handleSubmit}>
-      <Logo src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2FConnecter-form-preview.png?alt=media&token=da607aba-6727-4eee-a65a-968c88455272" alt="Connecter Intro" />
+        <Logo
+          src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2FConnecter-form-preview.png?alt=media&token=da607aba-6727-4eee-a65a-968c88455272"
+          alt="Connecter Intro"
+        />
         <Title>Faça login com seu ID Connecter</Title>
         <EmailContainer>
           <Input
@@ -83,7 +50,7 @@ const LoginPage = () => {
               disabled={!validateEmail(email)}
               emptyEmail={!email}
             >
-              <FaArrowRight /> {/* Ícone de seta */}
+              <FaArrowRight />
             </Button>
           )}
         </EmailContainer>
@@ -93,15 +60,15 @@ const LoginPage = () => {
               type="password"
               placeholder="Senha"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
             />
             <Button type="submit">
-              <FaArrowRight /> {/* Ícone de seta */}
+              <FaArrowRight />
             </Button>
           </PasswordContainer>
         )}
-        <RegisterLink to="/register">Criar um ID Connecter</RegisterLink>{' '}
-        {/* Novo link para criar ID */}
+        <RegisterLink to="/register">Criar um ID Connecter</RegisterLink>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </Form>
     </Container>
   );
@@ -215,5 +182,11 @@ const RegisterLink = styled(Link)`
   font-size: 1rem;
   text-decoration: none;
 `;
+
+const ErrorMessage = styled.div`
+  color: red;
+  margin-top: 1rem;
+`;
+
 
 export default LoginPage;
