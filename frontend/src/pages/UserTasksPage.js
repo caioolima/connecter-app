@@ -1,8 +1,9 @@
   // src/pages/UserTasksPage.js
-  import React, { useEffect, useState } from 'react';
+  import React, { useEffect, useState, useRef } from 'react';
   import styled from 'styled-components';
   import { useNavigate } from 'react-router-dom';
   import { jwtDecode } from 'jwt-decode'; // Corrigido a importação de jwt-decode
+  import { FaEllipsisV } from 'react-icons/fa'; // Importa o ícone de menu
 
   const UserTasksPage = () => {
     const [tasks, setTasks] = useState([]);
@@ -12,30 +13,33 @@
     const [user, setUser] = useState({ firstName: '', email: '' });
     const [selectedTask, setSelectedTask] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
-    const navigate = useNavigate();
+    const [menuOpen, setMenuOpen] = useState(null);
+    const menuRef = useRef(null); // Referência para o menu
 
+    const navigate = useNavigate();
+  
     useEffect(() => {
       const token = localStorage.getItem('token');
-
+  
       if (token) {
         setIsAuthenticated(true);
-
+  
         try {
           const decodedToken = jwtDecode(token);
           const fullName = decodedToken.name || 'Nome não disponível';
           const firstName = capitalizeFirstLetter(fullName.split(' ')[0]);
-
+  
           setUser({
             firstName,
             email: decodedToken.email || 'Email não disponível',
           });
-
+  
           const fetchTasks = async () => {
             try {
               const response = await fetch('http://localhost:5000/api/tasks/', {
                 headers: { Authorization: `Bearer ${token}` },
               });
-
+  
               if (response.ok) {
                 const data = await response.json();
                 setTasks(data);
@@ -47,7 +51,7 @@
               console.error('Erro ao carregar tarefas:', error);
             }
           };
-
+  
           fetchTasks();
         } catch (error) {
           console.error('Erro ao decodificar o token:', error);
@@ -56,26 +60,27 @@
         navigate('/login');
       }
     }, [navigate, filter]);
-
+  
     useEffect(() => {
       if (tasks.length) {
         filterTasks(tasks, filter);
       }
     }, [tasks, filter]);
-
+  
     const capitalizeFirstLetter = (string) => {
       return string.charAt(0).toUpperCase() + string.slice(1);
     };
-
+  
     const formatDate = (dateString) => {
       if (!dateString) return 'Data não disponível.';
       const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
       return new Date(dateString).toLocaleDateString(undefined, options);
     };
-
+  
     const filterTasks = (tasks, filter) => {
       switch (filter) {
         case 'recent':
+          // Ordena as tarefas com base na data e hora, com as mais recentes primeiro
           setFilteredTasks([...tasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
           break;
         case 'completed':
@@ -88,17 +93,18 @@
           setFilteredTasks(tasks);
       }
     };
-
+    
+  
     const handleEditClick = (task) => {
       setSelectedTask(task);
       setModalOpen(true);
     };
-
+  
     const handleCloseModal = () => {
       setModalOpen(false);
       setSelectedTask(null);
     };
-
+  
     const handleUpdateTask = async (updatedTask) => {
       try {
         const response = await fetch(`http://localhost:5000/api/tasks/${updatedTask.id}`, {
@@ -109,7 +115,7 @@
           },
           body: JSON.stringify(updatedTask),
         });
-
+  
         if (response.ok) {
           const updatedTaskData = await response.json();
           setTasks(tasks.map(task => task.id === updatedTaskData.id ? updatedTaskData : task));
@@ -122,7 +128,7 @@
         console.error('Erro ao atualizar tarefa:', error);
       }
     };
-
+  
     const handleCompleteTask = async (taskId) => {
       try {
         const response = await fetch(`http://localhost:5000/api/tasks/${taskId}/complete`, {
@@ -132,7 +138,7 @@
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-
+  
         if (response.ok) {
           const updatedTask = await response.json();
           setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
@@ -145,7 +151,7 @@
         console.error('Erro ao marcar tarefa como concluída:', error);
       }
     };
-
+  
     const handleDeleteTask = async (taskId) => {
       try {
         const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
@@ -154,7 +160,7 @@
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-
+  
         if (response.ok) {
           setTasks(tasks.filter(task => task.id !== taskId));
           filterTasks(tasks.filter(task => task.id !== taskId), filter);
@@ -166,7 +172,22 @@
         console.error('Erro ao excluir tarefa:', error);
       }
     };
-
+  
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (menuRef.current && !menuRef.current.contains(event.target)) {
+          setMenuOpen(false); // Fecha o menu ao clicar fora
+        }
+      };
+    
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+    
+    const toggleMenu = (taskId) => {
+      setMenuOpen((prev) => (prev === taskId ? null : taskId)); // Alterna o estado do menu baseado no ID da tarefa
+    };
+  
     return (
       <Container>
         <Sidebar>
@@ -184,15 +205,21 @@
                 <TaskCard key={task.id}>
                   <CardHeader>
                     <TaskName>{task.taskTitle}</TaskName>
-                    <TaskDate>{formatDate(task.createdAt)}</TaskDate>
+                    <MenuIcon onClick={() => toggleMenu(task.id)}>
+  <FaEllipsisV />
+</MenuIcon>
+{menuOpen === task.id && ( // Verifica se o menu deve estar aberto para esta tarefa
+  <DropdownMenu ref={menuRef}>
+    <DropdownItem onClick={() => handleEditClick(task)}>Editar</DropdownItem>
+    {!task.taskStatus && (
+      <DropdownItem onClick={() => handleCompleteTask(task.id)}>Concluir</DropdownItem>
+    )}
+  </DropdownMenu>
+
+)}
                   </CardHeader>
                   <TaskDescription>{task.taskDescription}</TaskDescription>
-                  <ActionButtons>
-                    <ActionButton onClick={() => handleEditClick(task)}>Editar</ActionButton>
-                    {!task.taskStatus && (
-                      <ActionButton onClick={() => handleCompleteTask(task.id)}>Concluir</ActionButton>
-                    )}
-                  </ActionButtons>
+                  <TaskDate>{formatDate(task.createdAt)}</TaskDate>
                 </TaskCard>
               ))
             ) : (
@@ -233,181 +260,171 @@
       </Container>
     );
   };
-
+  
   const Container = styled.div`
     display: flex;
-    height: auto;
-    background: #ffffff; /* Fundo branco */
-    color: #000000; /* Texto preto */
-    font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
   `;
-
+  
   const Sidebar = styled.div`
-    width: 250px;
-    height: auto;
-    background: #000000; /* Fundo preto */
-    color: #ffffff; /* Texto branco */
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 20%;
+    background-color: #000;
+    padding: 20px;
   `;
-
+  
   const Header = styled.h1`
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    margin: 5rem auto;
+    font-size: 24px;
+    margin-bottom: 2rem;
+    margin-top: 5rem;
+    color: #fff;
   `;
-
+  
   const FilterMenu = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    width: 100%;
   `;
-
+  
   const FilterButton = styled.button`
-    background: ${({ active }) => (active ? '#333333' : '#000000')}; /* Preto se ativo, preto escuro se inativo */
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    font-size: 1rem;
-    width: 100%;
+  background-color: ${(props) => (props.active ? '#000000' : '#ffffff')}; /* Preto quando ativo, branco quando inativo */
+  color: ${(props) => (props.active ? '#ffffff' : '#000000')}; /* Branco quando ativo, preto quando inativo */
+  border: 1px solid #eaeaea; /* Borda leve */
+  padding: 8px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 5px; /* Bordas levemente arredondadas */
+  transition: background-color 0.2s ease, color 0.2s ease, border 0.2s ease; /* Transições suaves */
+  
+  &:hover {
+    background-color: #333333; /* Cinza claro no hover */
+    border-color: #d0d0d0; /* Ajuste sutil na borda no hover */
+    color: #fff;
+  }
 
-    &:hover {
-      background: #444444; /* Preto um pouco mais claro */
-    }
-  `;
+  &:focus {
+    outline: none; /* Remove outline padrão */
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1); /* Sombra leve no foco */
+  }
+
+  &:active {
+    background-color: #333333; /* Tom mais escuro quando pressionado */
+    border-color: #333333; /* Borda alinhada com o background */
+  }
+`;
 
   const Content = styled.div`
     flex: 1;
-    padding: 2rem;
+    padding: 20px;
   `;
-
+  
   const TaskGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-    margin: 5rem auto;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 5rem;
   `;
-
+  
   const TaskCard = styled.div`
-    background: #ffffff; /* Fundo branco */
+    background-color: #ffffff;
+    padding: 20px;
     border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   `;
-
+  
   const CardHeader = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
   `;
-
-  const TaskName = styled.h2`
-    font-size: 1.2rem;
-    color: #000000; /* Texto preto */
+  
+  const TaskName = styled.h3`
+    margin: 0;
   `;
+  
+  const MenuIcon = styled.div`
+  cursor: pointer;
+`;
 
-  const TaskDate = styled.span`
-    font-size: 0.9rem;
-    color: #666666; /* Texto cinza escuro */
-  `;
+const DropdownMenu = styled.div`
+  position: relative; /* Posiciona o menu em relação ao MenuWrapper */
+  top: 100%; /* Coloca o menu diretamente abaixo do ícone */
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  z-index: 1000;
+  min-width: 120px; /* Define uma largura mínima para o menu */
+`;
 
+const DropdownItem = styled.div`
+  padding: 8px 16px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
+  
   const TaskDescription = styled.p`
-    color: #000000; /* Texto preto */
+    font-size: 14px;
+    margin: 10px 0;
   `;
-
-  const ActionButtons = styled.div`
-    display: flex;
-    gap: 0.5rem;
+  
+  const TaskDate = styled.span`
+    font-size: 12px;
+    color: #777;
   `;
-
-  const ActionButton = styled.button`
-    background: #333333; /* Preto escuro */
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    font-size: 0.9rem;
-
-    &:hover {
-      background: #222222; /* Preto mais escuro */
-    }
-  `;
-
-  const NoTasks = styled.p`
-    color: #000000; /* Texto preto */
-    font-size: 1rem;
+  
+  const NoTasks = styled.div`
     text-align: center;
+    color: #777;
+    padding: 20px;
   `;
-
+  
   const Modal = styled.div`
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8); /* Fundo escurecido para o modal */
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
   `;
-
+  
   const ModalContent = styled.div`
-    background: #ffffff; /* Fundo branco */
-    color: #000000; /* Texto preto */
+    background: #fff;
+    padding: 20px;
     border-radius: 8px;
-    padding: 2rem;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    max-width: 80%;
   `;
-
+  
   const Form = styled.form`
     display: flex;
     flex-direction: column;
-    gap: 1rem;
   `;
-
+  
   const Input = styled.input`
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 0.5rem;
-    font-size: 1rem;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
   `;
-
+  
   const TextArea = styled.textarea`
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 0.5rem;
-    font-size: 1rem;
-    min-height: 100px;
-    resize: vertical;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
   `;
-
+  
   const Button = styled.button`
-    background: #333333; /* Preto escuro */
-    color: #ffffff;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    background-color: #3b82f6;
+    color: white;
     border: none;
     border-radius: 4px;
-    padding: 0.75rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    font-size: 1rem;
-
-    &:hover {
-      background: #222222; /* Preto mais escuro */
-    }
   `;
-
+  
   export default UserTasksPage;
