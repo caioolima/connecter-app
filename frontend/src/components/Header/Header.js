@@ -3,15 +3,15 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaBars } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
-import CreateTaskModal from '../CreateTaskModal';
 import UserMenu from './UserMenu';
 import TaskMenu from './TaskMenu';
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isMenuOpen, setIsMenuOpen] = useState(null); // Controle centralizado para os menus
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
+  const [isTaskMenuOpen, setIsTaskMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [userInfo, setUserInfo] = useState({
     username: '',
@@ -54,7 +54,7 @@ const Header = () => {
   }, [token]);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) return; // Evita a execução enquanto está carregando
 
     if (token && userInfo.username && location.pathname === '/login') {
       navigate(`/tasks/${encodeURIComponent(userInfo.username)}`);
@@ -63,11 +63,22 @@ const Header = () => {
 
   useEffect(() => {
     // Fechar os menus ao trocar de página
-    setIsMenuOpen(null);
+    setIsTaskMenuOpen(false);
+    setIsUserMenuOpen(false);
   }, [location.pathname]);
 
-  const toggleMenu = (menu) => {
-    setIsMenuOpen(prevMenu => (prevMenu === menu ? null : menu));
+  const toggleTaskMenu = () => {
+    if (isUserMenuOpen) {
+      setIsUserMenuOpen(false);
+    }
+    setIsTaskMenuOpen(!isTaskMenuOpen);
+  };
+
+  const toggleUserMenu = () => {
+    if (isTaskMenuOpen) {
+      setIsTaskMenuOpen(false);
+    }
+    setIsUserMenuOpen(!isUserMenuOpen);
   };
 
   const openCreateTaskModal = () => {
@@ -84,7 +95,7 @@ const Header = () => {
 
   const handleViewTasks = () => {
     navigate('/user-tasks');
-    setIsMenuOpen(null); // Fecha o menu ao navegar
+    setIsTaskMenuOpen(false); // Fecha o menu ao navegar
   };
 
   const handleLogout = () => {
@@ -97,7 +108,8 @@ const Header = () => {
       createdAt: '',
     });
     navigate('/login');
-    setIsMenuOpen(null); // Fecha o menu ao deslogar
+    setIsTaskMenuOpen(false); // Fecha o menu ao deslogar
+    setIsUserMenuOpen(false); // Fecha o menu ao deslogar
   };
 
   const isOnLoginPage = location.pathname === '/login';
@@ -114,24 +126,30 @@ const Header = () => {
         </StyledLink>
         {isAuthenticated && !isOnUserTasksPage ? (
           <MenuContainer>
-            <MenuIcon onClick={() => toggleMenu('task')}>
+            <MenuIcon onClick={toggleTaskMenu}>
               <FaBars />
             </MenuIcon>
-            {isMenuOpen === 'task' && (
+            {isTaskMenuOpen && (
               <TaskMenu 
                 onViewTasks={() => {
                   handleViewTasks();
-                  setIsMenuOpen(null); // Fecha o menu ao clicar na opção
+                  setIsTaskMenuOpen(false); // Fecha o menu ao clicar na opção
                 }} 
               />
             )}
             <UserMenu
               name={userInfo.fullName}
               onLogout={handleLogout}
-              onClick={() => toggleMenu('user')}
-              isOpen={isMenuOpen === 'user'}
+              onClick={() => {
+                toggleUserMenu();
+                // Fechar o menu de tarefas se o menu de usuário for aberto
+                if (isTaskMenuOpen) {
+                  setIsTaskMenuOpen(false);
+                }
+              }}
+              isOpen={isUserMenuOpen}
             />
-            {isMenuOpen === 'user' && (
+            {isUserMenuOpen && !isTaskMenuOpen && (
               <UserMenu 
                 name={userInfo.fullName} 
                 onLogout={handleLogout} 
@@ -146,12 +164,6 @@ const Header = () => {
           <LoginButton to="/login">Fazer Login</LoginButton>
         ) : null}
       </Container>
-      <CreateTaskModal 
-        isOpen={isCreateTaskModalOpen} 
-        onClose={closeCreateTaskModal} 
-        onCreate={handleCreateTask} 
-        token={token} 
-      />
     </>
   );
 };

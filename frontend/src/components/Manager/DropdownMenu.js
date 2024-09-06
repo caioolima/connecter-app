@@ -1,22 +1,58 @@
-// components/Manager/DropdownMenu.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaEllipsisV } from 'react-icons/fa';
 
 const DropdownMenu = ({ onEdit, onDelete, onComplete, isCompleted }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState(null); // Estado para controlar o item hover
+  const menuRef = useRef(null);
 
   const handleToggle = () => setIsOpen(!isOpen);
 
+  const handleClickOutside = (event) => {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    // Adiciona o event listener para detectar cliques fora do menu
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Limpeza do event listener quando o componente desmonta
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div style={styles.menuContainer}>
+    <div style={styles.menuContainer} ref={menuRef}>
       <FaEllipsisV onClick={handleToggle} style={styles.icon} />
       {isOpen && (
         <div style={styles.dropdown}>
-          <button onClick={onComplete} style={styles.menuItem}>
+          <button
+            onClick={() => { onComplete(); setIsOpen(false); }}
+            style={hoveredItem === 'complete' ? { ...styles.menuItem, ...styles.menuItemHover } : styles.menuItem}
+            onMouseEnter={() => setHoveredItem('complete')}
+            onMouseLeave={() => setHoveredItem(null)}
+          >
             {isCompleted ? 'Marcar como Pendente' : 'Marcar como Concluída'}
           </button>
-          <button onClick={onEdit} style={styles.menuItem}>Editar</button>
-          <button onClick={onDelete} style={styles.menuItem}>Excluir</button>
+          <button
+            onClick={() => { onEdit(); setIsOpen(false); }}
+            style={hoveredItem === 'edit' ? { ...styles.menuItem, ...styles.menuItemHover } : styles.menuItem}
+            onMouseEnter={() => setHoveredItem('edit')}
+            onMouseLeave={() => setHoveredItem(null)}
+          >
+            Editar
+          </button>
+          <button
+            onClick={() => { onDelete(); setIsOpen(false); }}
+            style={hoveredItem === 'delete' ? { ...styles.menuItem, ...styles.menuItemHover } : styles.menuItem}
+            onMouseEnter={() => setHoveredItem('delete')}
+            onMouseLeave={() => setHoveredItem(null)}
+          >
+            Excluir
+          </button>
         </div>
       )}
     </div>
@@ -36,6 +72,7 @@ const styles = {
     fontSize: '22px',
     cursor: 'pointer',
     color: '#fff',
+    transform: 'rotate(90deg)', // Rotaciona o ícone em 90 graus
   },
   dropdown: {
     position: 'absolute',
@@ -59,7 +96,7 @@ const styles = {
     transition: 'background-color 0.3s',
   },
   menuItemHover: {
-    backgroundColor: '#333',
+    backgroundColor: '#333', // Cor cinza claro para o hover
   },
 };
 

@@ -11,6 +11,10 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
   }
 
+  input, textarea, button, select, option {
+    font-family: 'Raleway', sans-serif;
+  }
+
   button {
     background-color: ${({ theme }) => theme.colors.button};
     color: #fff;
