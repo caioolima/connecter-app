@@ -3,7 +3,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // ou o caminho para seu arquivo de configuração do Sequelize
 
 const UserTask = sequelize.define('UserTask', {
-  user: {
+  username: {  // Altere para username se isso estiver no JWT
     type: DataTypes.STRING,
     allowNull: false
   },
@@ -22,5 +22,6 @@ const UserTask = sequelize.define('UserTask', {
 }, {
   timestamps: true
 });
+
 
 module.exports = UserTask;

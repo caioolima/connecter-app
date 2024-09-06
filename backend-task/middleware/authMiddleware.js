@@ -12,7 +12,28 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findByPk(decoded.id); // Encontrar o usuário com base no ID decodificado
+
+    // Verificar se o ID está presente no token decodificado
+    if (!decoded.id) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    // Encontrar o usuário com base no ID decodificado
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    // Adicionar informações do usuário ao req, incluindo a data de criação da conta
+    req.user = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      fullName: user.fullName,
+      createdAt: user.createdAt, // Usar a data de criação da conta do banco de dados
+    };
+
     next();
   } catch (err) {
     res.status(401).json({ message: 'Invalid token' });

@@ -1,4 +1,3 @@
-// src/components/RegisterForm.js
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -7,7 +6,8 @@ import { useInput } from '../hooks/useInput';
 
 const RegisterForm = () => {
   const { register, error } = useAuth();
-  const { value: name, onChange: handleNameChange } = useInput('');
+  const { value: username, onChange: handleUsernameChange } = useInput('');
+  const { value: fullName, onChange: handleFullNameChange } = useInput('');
   const { value: email, onChange: handleEmailChange } = useInput('');
   const { value: password, onChange: handlePasswordChange } = useInput('');
   const { value: confirmPassword, onChange: handleConfirmPasswordChange } = useInput('');
@@ -18,7 +18,7 @@ const RegisterForm = () => {
       alert('As senhas não coincidem');
       return;
     }
-    register(name, email, password);
+    register(username, fullName, email, password);
   };
 
   return (
@@ -38,9 +38,15 @@ const RegisterForm = () => {
 
         <Input
           type="text"
-          placeholder="Nome"
-          value={name}
-          onChange={handleNameChange}
+          placeholder="Nome de Usuário"
+          value={username}
+          onChange={handleUsernameChange}
+        />
+        <Input
+          type="text"
+          placeholder="Nome Completo"
+          value={fullName}
+          onChange={handleFullNameChange}
         />
         <Input
           type="email"
@@ -98,7 +104,7 @@ const Logo = styled.img`
 `;
 
 const Title = styled.h2`
-  width: 105o;
+  width: 100%; /* Corrigido */
   margin-bottom: 2rem;
   font-size: 1rem;
   font-weight: 500;

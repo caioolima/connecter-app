@@ -1,5 +1,4 @@
-// src/components/LoginForm.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaArrowRight } from 'react-icons/fa';
@@ -11,6 +10,8 @@ const LoginPage = () => {
   const { value: email, onChange: handleEmailChange } = useInput('');
   const { value: password, onChange: handlePasswordChange } = useInput('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loadingStartTime, setLoadingStartTime] = useState(null); // Hora de início do carregamento
+  const [minLoadingDuration] = useState(5000); // 5 segundos
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,9 +24,28 @@ const LoginPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(email, password);
+    setLoadingStartTime(Date.now()); // Registra o tempo de início do carregamento
+
+    try {
+      await login(email, password);
+
+      // Calcula o tempo decorrido e o tempo restante
+      const elapsedTime = Date.now() - loadingStartTime;
+      const remainingTime = Math.max(minLoadingDuration - elapsedTime, 0);
+      
+      // Define o tempo adicional para manter o loader visível se o tempo de carregamento for menor que 5 segundos
+      setTimeout(() => {
+        window.location.reload(); // Faz o reload após o tempo de carregamento
+      }, remainingTime);
+    } catch (err) {
+      console.error('Erro ao fazer login:', err);
+      // Se ocorrer um erro, ainda faz o reload após o tempo mínimo
+      setTimeout(() => {
+        window.location.reload(); // Faz o reload após o tempo de carregamento
+      }, minLoadingDuration);
+    }
   };
 
   return (
@@ -187,6 +207,5 @@ const ErrorMessage = styled.div`
   color: red;
   margin-top: 1rem;
 `;
-
 
 export default LoginPage;

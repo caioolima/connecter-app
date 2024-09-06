@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const UserTask = require('../models/userTaskModel');
+const UserTask = require('../models/userTaskModel'); // Certifique-se de que o caminho do modelo está correto
 
 // Adicionar nova tarefa
 exports.addTask = async (req, res) => {
@@ -13,10 +12,10 @@ exports.addTask = async (req, res) => {
 
     // Criar a nova tarefa e a relação com o usuário
     const userTask = await UserTask.create({
-      user: req.user.name,  // Armazenando o nome de usuário
+      username: req.user.username, // Certifique-se de que `username` está sendo passado corretamente
       taskTitle: title,
       taskDescription: description,
-      taskStatus: false  // Status padrão
+      taskStatus: false, // Status padrão
     });
 
     res.json({ userTask, message: 'Task added successfully' });
@@ -28,28 +27,16 @@ exports.addTask = async (req, res) => {
 // Obter tarefas do usuário
 exports.getTasks = async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'User not authenticated' });
+    const { username } = req.params; // Obtém o username da rota
+
+    // Busca todas as tarefas associadas ao username
+    const tasks = await UserTask.findAll({ where: { username } });
+
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ message: 'No tasks found for this user' });
     }
 
-    // Buscar todas as tarefas associadas ao nome de usuário
-    const userTasks = await UserTask.findAll({ where: { user: req.user.name } });
-
-    res.json(userTasks);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Obter tarefas de um usuário específico
-exports.getTasksByUser = async (req, res) => {
-  try {
-    const { username } = req.params;  // Obtém o nome de usuário da URL
-
-    // Buscar todas as tarefas associadas ao nome de usuário fornecido
-    const userTasks = await UserTask.findAll({ where: { user: username } });
-
-    res.json(userTasks);
+    res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -66,7 +53,7 @@ exports.updateTask = async (req, res) => {
     }
 
     // Buscar a tarefa do usuário e atualizar
-    const userTask = await UserTask.findOne({ where: { id: taskId, user: req.user.name } });
+    const userTask = await UserTask.findOne({ where: { id: taskId, username: req.user.username } });
     if (!userTask) return res.status(404).json({ message: 'Task not found' });
 
     userTask.taskTitle = title || userTask.taskTitle;
@@ -90,8 +77,8 @@ exports.deleteTask = async (req, res) => {
     }
 
     // Buscar e remover a tarefa
-    const userTask = await UserTask.destroy({ where: { id: taskId, user: req.user.name } });
-    if (!userTask) return res.status(404).json({ message: 'Task not found' });
+    const result = await UserTask.destroy({ where: { id: taskId, username: req.user.username } });
+    if (result === 0) return res.status(404).json({ message: 'Task not found' });
 
     res.json({ message: 'Task removed successfully' });
   } catch (err) {
@@ -108,11 +95,10 @@ exports.completeTask = async (req, res) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Buscar a tarefa do usuário e marcar como concluída
-    const userTask = await UserTask.findOne({ where: { id: taskId, user: req.user.name } });
+    const userTask = await UserTask.findOne({ where: { id: taskId, username: req.user.username } });
     if (!userTask) return res.status(404).json({ message: 'Task not found' });
 
-    userTask.taskStatus = true;  // Marcar como concluída
+    userTask.taskStatus = true;
     await userTask.save();
 
     res.json({ userTask, message: 'Task marked as completed successfully' });
@@ -120,6 +106,7 @@ exports.completeTask = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Verificar tarefas concluídas
 exports.getCompletedTasks = async (req, res) => {
@@ -131,12 +118,35 @@ exports.getCompletedTasks = async (req, res) => {
     // Buscar todas as tarefas associadas ao nome de usuário e com status concluído
     const completedTasks = await UserTask.findAll({ 
       where: { 
-        user: req.user.name,
+        username: req.user.username,
         taskStatus: true
       } 
     });
 
     res.json(completedTasks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Obter tarefas públicas de um usuário
+exports.getTasksPublic = async (req, res) => {
+  try {
+    const { username } = req.params; // Obtém o username da rota
+
+    // Verifica se o username foi fornecido
+    if (!username) {
+      return res.status(400).json({ message: 'Username is required' });
+    }
+
+    // Busca todas as tarefas associadas ao username fornecido
+    const tasks = await UserTask.findAll({ where: { username } });
+
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ message: 'No tasks found for this user' });
+    }
+
+    res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

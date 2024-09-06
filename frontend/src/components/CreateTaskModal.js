@@ -24,7 +24,8 @@ const CreateTaskModal = ({ isOpen, onClose, onCreate, token }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao criar tarefa');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao criar tarefa');
       }
 
       const result = await response.json();
@@ -44,7 +45,7 @@ const CreateTaskModal = ({ isOpen, onClose, onCreate, token }) => {
   return (
     <ModalOverlay>
       <ModalContent>
-        <CloseButton onClick={onClose}>×</CloseButton>
+        <CloseButton onClick={onClose} aria-label="Close modal">×</CloseButton>
         <h2>Criar Nova Tarefa</h2>
         {error && <Error>{error}</Error>}
         <Form>
@@ -91,6 +92,7 @@ const ModalContent = styled.div`
   position: relative;
   width: 500px;
   max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const CloseButton = styled.button`
@@ -124,6 +126,7 @@ const Textarea = styled.textarea`
   border: 1px solid #ddd;
   border-radius: 4px;
   margin-bottom: 1rem;
+  min-height: 100px;
 `;
 
 const Button = styled.button`

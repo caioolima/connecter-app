@@ -3,13 +3,13 @@ const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { username, fullName, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email, and password are required' });
+    if (!username || !fullName || !email || !password) {
+      return res.status(400).json({ message: 'Username, fullName, email, and password are required' });
     }
 
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ username, fullName, email, password });
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
@@ -18,6 +18,7 @@ exports.register = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 exports.login = async (req, res) => {
   try {
@@ -33,7 +34,7 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, name: user.name, email: user.email },
+      { id: user.id, username: user.username, fullName: user.fullName, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -48,8 +49,8 @@ exports.getUserInfo = async (req, res) => {
   try {
     const { username } = req.params;
 
-    // Buscar o usuário pelo nome
-    const user = await User.findOne({ where: { name: username } });
+    // Buscar o usuário pelo nome de usuário
+    const user = await User.findOne({ where: { username } });
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -57,7 +58,8 @@ exports.getUserInfo = async (req, res) => {
 
     // Retornar informações do usuário, incluindo a data de criação
     res.json({
-      name: user.name,
+      username: user.username,
+      fullName: user.fullName,
       email: user.email,
       createdAt: user.createdAt // Inclua a data de criação aqui
     });

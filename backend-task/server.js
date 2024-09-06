@@ -32,7 +32,7 @@ const taskRoutes = require('./routes/taskRoutes');
 
 // Uso das Rotas
 app.use('/api/users', userRoutes);
-app.use('/api/tasks', taskRoutes);
+app.use('/api/manager', taskRoutes);
 
 // Inicialização do Servidor
 const PORT = process.env.PORT || 5000;

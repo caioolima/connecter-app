@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
+import { useAuth } from '../hooks/useAuth'; // Importando o hook useAuth
 import { jwtDecode } from 'jwt-decode';
 
 const capitalizeFirstLetter = (string) => {
@@ -8,9 +9,14 @@ const capitalizeFirstLetter = (string) => {
 };
 
 const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+  const options = {
+    day: '2-digit', // Dia do mês com dois dígitos (ex: "06")
+    month: '2-digit', // Mês com dois dígitos (ex: "09")
+    year: 'numeric' // Ano com quatro dígitos (ex: "2024")
+  };
+  return new Date(dateString).toLocaleDateString('pt-BR', options);
 };
+
 
 const fadeIn = keyframes`
   from {
@@ -24,66 +30,42 @@ const fadeIn = keyframes`
 `;
 
 const TasksPage = () => {
-  const { username } = useParams();
+  const { username } = useParams(); // Obtém o nome de usuário da URL
   const [tasks, setTasks] = useState([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState({ firstName: '', email: '', createdAt: '' });
   const [selectedTask, setSelectedTask] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [createdAt, setCreatedAt] = useState(''); // Estado para a data de criação
   const navigate = useNavigate();
 
+  const { token, userInfo } = useAuth(); // Utilize useAuth para obter informações do usuário
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      setIsAuthenticated(true);
-
+    const fetchUserInfo = async () => {
       try {
-        const decodedToken = jwtDecode(token);
-        const fullName = decodedToken.name || 'Nome não disponível';
-        const firstName = capitalizeFirstLetter(fullName.split(' ')[0]);
-
-        setUser({
-          firstName,
-          email: decodedToken.email || 'Email não disponível',
-        });
-
-        if (username !== firstName) {
-          navigate(`/tasks/${encodeURIComponent(firstName)}`);
+        const response = await fetch(`http://localhost:5000/api/users/user/${username}`);
+        if (response.ok) {
+          const data = await response.json();
+          setFullName(data.fullName || 'Nome não disponível');
+          setEmail(data.email || 'Email não disponível');
+          setCreatedAt(formatDate(data.createdAt) || 'Data não disponível');
+        } else {
+          console.error('Erro ao carregar informações do usuário:', response.statusText);
         }
       } catch (error) {
-        console.error('Erro ao decodificar o token:', error);
+        console.error('Erro ao carregar informações do usuário:', error);
       }
-    } else {
-      const fetchUserInfo = async () => {
-        try {
-          const response = await fetch(`http://localhost:5000/api/users/user/${encodeURIComponent(username)}`);
-          if (response.ok) {
-            const data = await response.json();
-            setUser({
-              firstName: capitalizeFirstLetter(data.name),
-              email: data.email,
-              createdAt: data.createdAt,
-            });
-          } else {
-            console.error('Erro ao carregar informações do usuário:', response.statusText);
-          }
-        } catch (error) {
-          console.error('Erro ao carregar informações do usuário:', error);
-        }
-      };
-
-      fetchUserInfo();
-    }
+    };
 
     const fetchTasks = async () => {
       try {
-        const apiUrl = isAuthenticated 
-          ? `http://localhost:5000/api/tasks/` 
-          : `http://localhost:5000/api/tasks/task/user/${encodeURIComponent(username)}`;
+        const apiUrl = token
+          ? `http://localhost:5000/api/manager/tasks/${encodeURIComponent(userInfo.username)}`
+          : `http://localhost:5000/api/manager/tasks/${encodeURIComponent(username)}`;
 
         const response = await fetch(apiUrl, {
-          headers: isAuthenticated ? { Authorization: `Bearer ${token}` } : {},
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
 
         if (response.ok) {
@@ -97,11 +79,12 @@ const TasksPage = () => {
       }
     };
 
+    fetchUserInfo();
     fetchTasks();
-  }, [navigate, username, isAuthenticated]);
+  }, [navigate, username, token, userInfo.username]);
 
   const handleViewTask = (task) => {
-    if (isAuthenticated) {
+    if (token) {
       setSelectedTask(task);
     } else {
       setShowLoginModal(true);
@@ -116,44 +99,40 @@ const TasksPage = () => {
     setShowLoginModal(false);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Data não disponível.'; // Caso a data não esteja disponível
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };  
-
   return (
     <Container>
       <WidgetsContainer>
         <UserWidget>
-          <h2>Informações de {user.firstName}</h2>
+          <h2>Informações de {fullName}</h2>
           <UserInfo>
             <InfoItem>
-              <strong>Nome:</strong> {user.firstName}
+              <strong>Usuário:</strong> {username}
             </InfoItem>
             <InfoItem>
-              <strong>Email:</strong> {user.email}
+              <strong>Email:</strong> {email}
             </InfoItem>
             <InfoItem>
-              <strong>Data de Criação:</strong> {formatDate(user.createdAt)} {/* Exibe a data de criação */}
+              <strong>Data de Criação:</strong> {createdAt}
             </InfoItem>
           </UserInfo>
         </UserWidget>
         <TasksWidget>
-          <h2>Tarefas de {user.firstName}</h2>
-          <TaskGrid>
-            {tasks.slice(0, 6).map((task) => (
-              <TaskItem key={task.id}>
-                <TaskName>{task.taskTitle}</TaskName>
-                <TaskDate>{formatDate(task.createdAt)}</TaskDate>
-                <ActionButton
-                  onClick={() => handleViewTask(task)}
-                >
-                  Detalhes
-                </ActionButton>
-              </TaskItem>
-            ))}
-          </TaskGrid>
+          <h2>Tarefas de {fullName}</h2>
+          {tasks.length > 0 ? (
+            <TaskGrid>
+              {tasks.slice(0, 6).map((task) => (
+                <TaskItem key={task.id}>
+                  <TaskName>{task.taskTitle}</TaskName>
+                  <TaskDate>{formatDate(task.createdAt)}</TaskDate>
+                  <ActionButton onClick={() => handleViewTask(task)}>
+                    Detalhes
+                  </ActionButton>
+                </TaskItem>
+              ))}
+            </TaskGrid>
+          ) : (
+            <NoTasksMessage>Não há tarefas para exibir.</NoTasksMessage>
+          )}
         </TasksWidget>
       </WidgetsContainer>
 
@@ -189,27 +168,26 @@ const TasksPage = () => {
 const Container = styled.div`
   display: flex;
   justify-content: center;
-  background: url('https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2Fconnecter-background.jpg?alt=media&token=ed77c00e-74c3-4580-b494-ce581651ce09') no-repeat center center fixed;
-  background-size: cover;
+  background: #000; /* Preto */
   padding: 2rem;
   min-height: 85vh;
   align-items: flex-start;
-  color: #dcdcdc; /* Cor de texto mais clara para contraste */
+  color: #fff; /* Branco */
 `;
 
 const WidgetsContainer = styled.div`
   display: flex;
   gap: 2rem;
   width: 100%;
-  margin-top: 10rem;
+  margin-top: 5rem;
   max-width: 1200px;
   justify-content: center;
 `;
 
 const Widget = styled.div`
-  background: rgba(0, 0, 0, 0.8); /* Fundo preto semitransparente */
-  border-radius: 15px;
-  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2), inset 0 -3px 6px rgba(255, 255, 255, 0.1);
+  background: #111; /* Preto muito escuro */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1), inset 0 -2px 4px rgba(255, 255, 255, 0.05);
   padding: 2rem;
   width: 100%;
   box-sizing: border-box;
@@ -217,20 +195,19 @@ const Widget = styled.div`
   animation: ${fadeIn} 0.6s ease-in-out;
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(255, 255, 255, 0.3), inset 0 -4px 8px rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(255, 255, 255, 0.1);
   }
 `;
 
 const TasksWidget = styled(Widget)`
   flex: 2;
   max-width: 750px;
-  background: rgba(0, 0, 0, 0.7);
-  
+
   h2 {
-    color: #f70073; /* Cor rosa para o título */
+    color: #fff; /* Branco */
     font-weight: bold;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     margin-bottom: 1rem;
   }
 `;
@@ -238,140 +215,142 @@ const TasksWidget = styled(Widget)`
 const UserWidget = styled(Widget)`
   flex: 1;
   max-width: 350px;
-  height: 320px;
-  background: rgba(0, 0, 0, 0.7);
-  
+  height: auto;
+
   h2 {
-    color: #f70073; /* Cor rosa para o título */
+    color: #fff; /* Branco */
     font-weight: bold;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     margin-bottom: 1rem;
   }
 `;
 
 const UserInfo = styled.div`
-  margin-top: 1.5rem;
+  font-size: 1rem;
+  color: #ccc; /* Cinza claro */
+
+  strong {
+    color: #fff; /* Branco */
+  }
 `;
 
 const InfoItem = styled.div`
-  margin-bottom: 0.75rem;
-  font-size: 1.1rem;
-  color: #dcdcdc;
+  margin-bottom: 0.5rem;
 `;
 
 const TaskGrid = styled.div`
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 `;
 
 const TaskItem = styled.div`
-  background: rgba(0, 0, 0, 0.8); /* Fundo preto semitransparente */
-  border-radius: 8px;
+  background: #222; /* Cinza escuro */
+  border-radius: 10px;
   padding: 1rem;
-  text-align: center;
-  color: #dcdcdc;
+  color: #fff; /* Branco */
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #333; /* Cinza mais claro */
+  }
 `;
 
 const TaskName = styled.h3`
   font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  margin: 0;
 `;
 
 const TaskDate = styled.p`
   font-size: 0.9rem;
-  color: #bbb;
+  color: #888; /* Cinza médio */
 `;
 
 const ActionButton = styled.button`
-  background: #ea4f97; /* Cor rosa para o botão */
+  background: #ea4f97; /* Cor primária */
+  color: #fff; /* Branco */
   border: none;
   border-radius: 5px;
-  color: white;
   padding: 0.5rem 1rem;
   cursor: pointer;
-  font-size: 1rem;
-  margin-top: 0.5rem;
-  font-weight: bold;
+  font-size: 0.9rem;
   transition: background 0.3s ease;
 
   &:hover {
-    background: #f70073; /* Cor rosa mais escura para hover */
+    background: #f70073; /* Cor primária mais forte */
   }
+`;
 
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
+const NoTasksMessage = styled.p`
+  color: #ccc; /* Cinza claro */
 `;
 
 const TaskModal = styled.div`
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.9); /* Fundo preto semitransparente */
-  color: #dcdcdc;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ModalContent = styled.div`
+  background: #111; /* Preto muito escuro */
   border-radius: 10px;
   padding: 2rem;
   width: 80%;
   max-width: 600px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-`;
-
-const LoginModal = styled(TaskModal)`
-  background: rgba(0, 0, 0, 0.9); /* Fundo preto semitransparente */
-`;
-
-const ModalContent = styled.div``;
-
-const LoginModalContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  color: #fff; /* Branco */
+  position: relative;
 `;
 
 const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
 `;
 
+const ModalDate = styled.p`
+  font-size: 0.9rem;
+  color: #ccc; /* Cinza claro */
+`;
+
 const ModalBody = styled.div`
-  margin-bottom: 1rem;
+  p {
+    margin: 0.5rem 0;
+  }
 `;
 
 const CloseButton = styled.button`
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: transparent;
+  background: none;
   border: none;
-  color: #dcdcdc;
+  color: #fff; /* Branco */
   font-size: 1.5rem;
   cursor: pointer;
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: #f70073; /* Cor rosa para hover */
-  }
 `;
 
-const ModalDate = styled.p`
-  font-size: 0.9rem;
-  color: #bbb;
+const LoginModal = styled(TaskModal)``;
+
+const LoginModalContent = styled(ModalContent)`
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
 `;
 
-const LoginButton = styled.button`
-  background: #ea4f97; /* Cor rosa para o botão */
-  border: none;
-  border-radius: 5px;
-  color: white;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s ease;
+const LoginButton = styled(ActionButton)`
+  background: #4bc5f5; /* Cor de link */
+  color: #fff; /* Branco */
+  margin-top: 1rem;
 
   &:hover {
-    background: #f70073; /* Cor rosa mais escura para hover */
+    background: #3a9ed9; /* Cor de link mais escura */
   }
 `;
 
