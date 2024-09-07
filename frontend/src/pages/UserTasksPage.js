@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../Context/AuthContext';
 import Navbar from '../components/Manager/Navbar';
 import TaskModal from '../components/Manager/TaskModal';
 import DropdownMenu from '../components/Manager/DropdownMenu';

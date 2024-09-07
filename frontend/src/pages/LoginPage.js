@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 import { FaArrowRight } from 'react-icons/fa';
-import { useAuth } from '../hooks/useAuth';
-import { useInput } from '../hooks/useInput';
+import { useAuth } from '../Context/AuthContext';
+import { useFormState } from '../hooks/useFormStates';
+import Logo from '../components/Login/Logo';
+import Title from '../components/Login/Title';
+import EmailContainer from '../components/Login/EmailContainer';
+import PasswordContainer from '../components/Login/PasswordContainer';
+import Input from '../components/Login/Input';
+import Button from '../components/Login/Button';
+import RegisterLink from '../components/Login/RegisterLink';
+import ErrorMessage from '../components/Login/ErrorMessage';
 
 const LoginPage = () => {
-  const { login, error } = useAuth();
-  const { value: email, onChange: handleEmailChange } = useInput('');
-  const { value: password, onChange: handlePasswordChange } = useInput('');
+  const { login, error: authError, clearError } = useAuth(); // Pegue o erro de autenticação e clearError
+  const { formValues, handleInputChange } = useFormState({
+    email: '',
+    password: '',
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [loadingStartTime, setLoadingStartTime] = useState(null); // Hora de início do carregamento
-  const [minLoadingDuration] = useState(5000); // 5 segundos
+  const [loadingStartTime, setLoadingStartTime] = useState(null);
+  const [minLoadingDuration] = useState(5000);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -19,67 +28,70 @@ const LoginPage = () => {
   };
 
   const handleShowPassword = () => {
-    if (validateEmail(email)) {
+    if (validateEmail(formValues.email)) {
       setShowPassword(true);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoadingStartTime(Date.now()); // Registra o tempo de início do carregamento
+    setLoadingStartTime(Date.now());
+    clearError(); // Limpa qualquer erro anterior
 
     try {
-      await login(email, password);
-
-      // Calcula o tempo decorrido e o tempo restante
+      await login(formValues.email, formValues.password);
       const elapsedTime = Date.now() - loadingStartTime;
       const remainingTime = Math.max(minLoadingDuration - elapsedTime, 0);
+      // Adicionar lógica para lidar com remainingTime, se necessário
     } catch (err) {
       console.error('Erro ao fazer login:', err);
+      // O erro será manipulado pela função clearError na AuthContext
     }
+  };
+
+  const handleChange = (e) => {
+    handleInputChange(e); // Atualiza o valor do campo
+    clearError(); // Limpa a mensagem de erro ao digitar
   };
 
   return (
     <Container>
       <Form onSubmit={handleSubmit}>
-        <Logo
-          src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2FConnecter-form-preview.png?alt=media&token=da607aba-6727-4eee-a65a-968c88455272"
-          alt="Connecter Intro"
-        />
+        <Logo />
         <Title>Faça login com seu ID Connecter</Title>
         <EmailContainer>
           <Input
+            name="email"
             type="email"
             placeholder="E-mail"
-            value={email}
-            onChange={handleEmailChange}
+            value={formValues.email}
+            onChange={handleChange} // Usa handleChange para limpar o erro
             autoFocus
           />
           {!showPassword && (
             <Button
               onClick={handleShowPassword}
-              disabled={!validateEmail(email)}
-              emptyEmail={!email}
+              disabled={!validateEmail(formValues.email)}
+              emptyEmail={!formValues.email}
             >
               <FaArrowRight />
             </Button>
           )}
         </EmailContainer>
-        {showPassword && (
-          <PasswordContainer>
-            <Input
-              type="password"
-              placeholder="Senha"
-              value={password}
-              onChange={handlePasswordChange}
-            />
-            <Button type="submit">
-              <FaArrowRight />
-            </Button>
-          </PasswordContainer>
-        )}
+        <PasswordContainer show={showPassword}>
+          <Input
+            name="password"
+            type="password"
+            placeholder="Senha"
+            value={formValues.password}
+            onChange={handleChange} // Usa handleChange para limpar o erro
+          />
+          <Button type="submit">
+            <FaArrowRight />
+          </Button>
+        </PasswordContainer>
         <RegisterLink to="/register">Criar um ID Connecter</RegisterLink>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {authError && <ErrorMessage>{authError}</ErrorMessage>} {/* Exibe o erro de autenticação */}
       </Form>
     </Container>
   );
@@ -90,7 +102,7 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 60vh;
-  margin-top: 7rem; /* Ajuste para trazer a imagem mais para cima */
+  margin-top: 9rem;
 `;
 
 const Form = styled.form`
@@ -98,105 +110,9 @@ const Form = styled.form`
   max-width: 560px;
   width: 100%;
   text-align: center;
-  background: white;
+  background: #1c1c1c;
   border-radius: 30px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-`;
-
-const Logo = styled.img`
-  width: 200px; /* Ajuste o tamanho conforme necessário */
-  height: 190px;
-  margin-bottom: -1rem; /* Diminuído o espaço entre o logo e o título */
-`;
-
-const Title = styled.h2`
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
-  font-weight: 500;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
-`;
-
-const EmailContainer = styled.div`
-  position: relative;
-  width: 100%;
-  margin-bottom: 1rem;
-`;
-
-const PasswordContainer = styled.div`
-  position: relative;
-  width: 100%;
-`;
-
-const Input = styled.input`
-  width: 70%;
-  padding: 1.2rem;
-  padding-right: 3.5rem; /* Aumenta o padding para criar mais espaço para o botão */
-  border: 1px solid #a4a4ad;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
-  transition:
-    border-color 0.3s,
-    box-shadow 0.3s;
-
-  &:focus {
-    border-color: #007aff;
-    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
-    outline: none;
-  }
-`;
-
-const Button = styled.button`
-  position: absolute;
-  top: 50%;
-  right: 3.6rem; /* Ajusta a posição do botão */
-  transform: translateY(-50%);
-  width: 2.2rem; /* Ajustar para o tamanho desejado */
-  height: 2.2rem;
-  background: ${(props) =>
-    props.emptyEmail
-      ? '#d0d0d5'
-      : '#007aff'}; /* Cor diferente quando o email está vazio */
-  border: none;
-  color: #ffffff;
-  border-radius: 50%;
-  font-size: 1rem; /* Ajustar tamanho do ícone */
-  font-weight: bold; /* Deixa a seta em negrito */
-  cursor: ${(props) =>
-    props.emptyEmail
-      ? 'default'
-      : 'pointer'}; /* Desabilita o cursor pointer se o email estiver vazio */
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background: ${(props) =>
-      props.emptyEmail
-        ? '#d0d0d5'
-        : '#0051a8'}; /* Cor diferente quando o email está vazio */
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-`;
-
-const RegisterLink = styled(Link)`
-  display: block;
-  margin-top: 1.5rem;
-  color: #007aff;
-  font-size: 1rem;
-  text-decoration: none;
-`;
-
-const ErrorMessage = styled.div`
-  color: red;
-  margin-top: 1rem;
 `;
 
 export default LoginPage;

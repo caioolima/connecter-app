@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
-import { useAuth } from '../hooks/useAuth'; // Importando o hook useAuth
+import { useAuth } from '../Context/AuthContext'; // Importando o hook useAuth
 import { jwtDecode } from 'jwt-decode';
 
 const capitalizeFirstLetter = (string) => {

@@ -7,7 +7,7 @@ exports.register = async (req, res) => {
     const { username, fullName, email, password } = req.body;
 
     if (!username || !fullName || !email || !password) {
-      return res.status(400).json({ message: 'Nome de usuário, nome completo, e-mail e senha são obrigatórios.' });
+      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
     }
 
     // Verificar se o nome de usuário ou e-mail já existem
@@ -43,20 +43,33 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Verificar se o e-mail e a senha foram fornecidos
     if (!email || !password) {
       return res.status(400).json({ message: 'E-mail e senha são obrigatórios' });
     }
 
-    const user = await User.findOne({ where: { email } });
-    if (!user || !(await user.matchPassword(password))) {
-      return res.status(400).json({ message: 'Credenciais inválidas' });
+    // Verificar se o e-mail é válido
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'E-mail inválido' });
     }
 
+    // Encontrar o usuário pelo e-mail
+    const user = await User.findOne({ where: { email } });
+
+    // Verificar se o usuário existe e se a senha está correta
+    if (!user || !(await user.matchPassword(password))) {
+      return res.status(400).json({ message: 'E-mail ou senha incorretos. Verifique e tente novamente.' });
+    }
+
+    // Gerar um token JWT
     const token = jwt.sign(
       { id: user.id, username: user.username, fullName: user.fullName, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
+
+    // Retornar o token para o cliente
     res.json({ token });
   } catch (err) {
     console.error('Erro durante o login:', err);

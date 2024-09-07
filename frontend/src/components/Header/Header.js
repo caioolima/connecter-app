@@ -1,170 +1,85 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaBars } from 'react-icons/fa';
-import { jwtDecode } from 'jwt-decode';
+import { FaBars, FaTimes } from 'react-icons/fa'; // Importa o ícone de "x"
 import UserMenu from './UserMenu';
 import TaskMenu from './TaskMenu';
+import useHeader from '../../hooks/useHeader';
 
 const Header = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
-  const [isTaskMenuOpen, setIsTaskMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const [userInfo, setUserInfo] = useState({
-    username: '',
-    email: '',
-    fullName: '',
-    createdAt: '',
-  });
-  const [loading, setLoading] = useState(true);
+  const {
+    isTaskMenuOpen,
+    isUserMenuOpen,
+    userInfo,
+    isOnLoginPage,
+    isOnUserTasksPage,
+    isAuthenticated,
+    toggleTaskMenu,
+    toggleUserMenu,
+    handleViewTasks,
+    handleLogout,
+    setIsTaskMenuOpen,
+  } = useHeader();
 
+  // Referência para detectar clique fora do TaskMenu
+  const menuRef = useRef(null);
+
+  // Efeito para detectar cliques fora do menu e fechar
   useEffect(() => {
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setUserInfo({
-          username: decodedToken.username || '',
-          email: decodedToken.email || '',
-          fullName: decodedToken.fullName || '',
-          createdAt: decodedToken.createdAt || '',
-        });
-      } catch (error) {
-        console.error('Erro ao decodificar o token', error);
-        localStorage.removeItem('token');
-        setToken('');
-        setUserInfo({
-          username: '',
-          email: '',
-          fullName: '',
-          createdAt: '',
-        });
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsTaskMenuOpen(false);
       }
-    } else {
-      setUserInfo({
-        username: '',
-        email: '',
-        fullName: '',
-        createdAt: '',
-      });
-    }
-    setLoading(false);
-  }, [token]);
+    };
 
-  useEffect(() => {
-    if (loading) return; // Evita a execução enquanto está carregando
-
-    if (token && userInfo.username && location.pathname === '/login') {
-      navigate(`/tasks/${encodeURIComponent(userInfo.username)}`);
-    }
-  }, [loading, token, userInfo.username, location.pathname, navigate]);
-
-  useEffect(() => {
-    // Fechar os menus ao trocar de página
-    setIsTaskMenuOpen(false);
-    setIsUserMenuOpen(false);
-  }, [location.pathname]);
-
-  const toggleTaskMenu = () => {
-    if (isUserMenuOpen) {
-      setIsUserMenuOpen(false);
-    }
-    setIsTaskMenuOpen(!isTaskMenuOpen);
-  };
-
-  const toggleUserMenu = () => {
-    if (isTaskMenuOpen) {
-      setIsTaskMenuOpen(false);
-    }
-    setIsUserMenuOpen(!isUserMenuOpen);
-  };
-
-  const openCreateTaskModal = () => {
-    setIsCreateTaskModalOpen(true);
-  };
-
-  const closeCreateTaskModal = () => {
-    setIsCreateTaskModalOpen(false);
-  };
-
-  const handleCreateTask = (task) => {
-    console.log('Nova tarefa criada:', task);
-  };
-
-  const handleViewTasks = () => {
-    navigate('/user-tasks');
-    setIsTaskMenuOpen(false); // Fecha o menu ao navegar
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken('');
-    setUserInfo({
-      username: '',
-      email: '',
-      fullName: '',
-      createdAt: '',
-    });
-    navigate('/login');
-    setIsTaskMenuOpen(false); // Fecha o menu ao deslogar
-    setIsUserMenuOpen(false); // Fecha o menu ao deslogar
-  };
-
-  const isOnLoginPage = location.pathname === '/login';
-  const isOnUserTasksPage = location.pathname === '/user-tasks';
-
-  // Verifica se o usuário está autenticado com base no token e userInfo
-  const isAuthenticated = !!token && !!userInfo.username;
+    // Adiciona evento ao clicar fora
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // Remove evento ao desmontar
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [setIsTaskMenuOpen]);
 
   return (
-    <>
-      <Container>
-        <StyledLink to={isAuthenticated ? `/tasks/${encodeURIComponent(userInfo.username)}` : '/'}>
-          <Logo src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2Fconnecter-logo-preview.png?alt=media&token=5891cb1a-9b80-4908-ba62-ebf81bbeb46a" alt="Connecter Logo" />
-        </StyledLink>
-        {isAuthenticated && !isOnUserTasksPage ? (
-          <MenuContainer>
-            <MenuIcon onClick={toggleTaskMenu}>
-              <FaBars />
-            </MenuIcon>
-            {isTaskMenuOpen && (
-              <TaskMenu 
-                onViewTasks={() => {
-                  handleViewTasks();
-                  setIsTaskMenuOpen(false); // Fecha o menu ao clicar na opção
-                }} 
-              />
-            )}
-            <UserMenu
-              name={userInfo.fullName}
-              onLogout={handleLogout}
-              onClick={() => {
-                toggleUserMenu();
-                // Fechar o menu de tarefas se o menu de usuário for aberto
-                if (isTaskMenuOpen) {
-                  setIsTaskMenuOpen(false);
-                }
+    <Container>
+      <StyledLink to={isAuthenticated ? `/tasks/${encodeURIComponent(userInfo.username)}` : '/'}>
+        <Logo src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2Fconnecter-logo-preview.png?alt=media&token=5891cb1a-9b80-4908-ba62-ebf81bbeb46a" alt="Connecter Logo" />
+      </StyledLink>
+      {isAuthenticated && !isOnUserTasksPage ? (
+        <MenuContainer ref={menuRef}>
+          <MenuIcon onClick={toggleTaskMenu}>
+            {isTaskMenuOpen ? <FaTimes /> : <FaBars />} {/* Exibe FaTimes quando o menu está aberto, FaBars quando está fechado */}
+          </MenuIcon>
+          {isTaskMenuOpen && (
+            <TaskMenu
+              onViewTasks={() => {
+                handleViewTasks();
+                setIsTaskMenuOpen(false);
               }}
-              isOpen={isUserMenuOpen}
+              onClose={() => setIsTaskMenuOpen(false)}
             />
-            {isUserMenuOpen && !isTaskMenuOpen && (
-              <UserMenu 
-                name={userInfo.fullName} 
-                onLogout={handleLogout} 
-              />
-            )}
-          </MenuContainer>
-        ) : isAuthenticated && !isOnLoginPage ? (
-          <MenuContainer>
-            <UserMenu name={userInfo.fullName} onLogout={handleLogout} />
-          </MenuContainer>
-        ) : !isAuthenticated && !isOnUserTasksPage ? (
-          <LoginButton to="/login">Fazer Login</LoginButton>
-        ) : null}
-      </Container>
-    </>
+          )}
+          <UserMenu
+            name={userInfo.fullName}
+            onLogout={handleLogout}
+            onClick={() => {
+              toggleUserMenu();
+              // Fechar o menu de tarefas se o menu de usuário for aberto
+              if (isTaskMenuOpen) {
+                setIsTaskMenuOpen(false);
+              }
+            }}
+            isOpen={isUserMenuOpen}
+          />
+        </MenuContainer>
+      ) : isAuthenticated && !isOnLoginPage ? (
+        <MenuContainer>
+          <UserMenu name={userInfo.fullName} onLogout={handleLogout} />
+        </MenuContainer>
+      ) : !isAuthenticated && !isOnLoginPage ? (
+        <LoginButton to="/login">Fazer Login</LoginButton>
+      ) : null}
+    </Container>
   );
 };
 
@@ -211,6 +126,12 @@ const MenuIcon = styled.div`
   cursor: pointer;
   margin-right: 1.5rem;
   color: #fff;
+  transition: color 0.3s ease, transform 0.3s ease; /* Adicionada a transição */
+
+  &:hover {
+    color: #ea4f97; /* Cor do ícone ao passar o mouse */
+    transform: scale(1.1); /* Leve aumento de escala ao passar o mouse */
+  }
 `;
 
 const LoginButton = styled(Link)`

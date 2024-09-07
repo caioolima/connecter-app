@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+// AuthContext.js
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
-export const useAuth = () => {
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [userInfo, setUserInfo] = useState({
@@ -46,6 +49,11 @@ export const useAuth = () => {
 
   const login = async (email, password) => {
     try {
+      // Verifica se todos os campos obrigatórios estão preenchidos
+      if (!email || !password) {
+        throw new Error('E-mail e senha são obrigatórios.');
+      }
+  
       const response = await fetch('http://localhost:5000/api/users/login', {
         method: 'POST',
         headers: {
@@ -53,15 +61,18 @@ export const useAuth = () => {
         },
         body: JSON.stringify({ email, password }),
       });
-
+  
+      // Verifica se a resposta foi bem-sucedida
       if (!response.ok) {
-        throw new Error('E-mail ou senha incorretos. Verifique e tente novamente.');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'E-mail ou senha incorretos. Verifique e tente novamente.');
       }
-
+  
+      // Processa a resposta se o login for bem-sucedido
       const data = await response.json();
       localStorage.setItem('token', data.token);
       setToken(data.token);
-
+  
       // Atualiza o estado com o usuário decodificado
       const decodedToken = jwtDecode(data.token);
       setUserInfo({
@@ -70,9 +81,12 @@ export const useAuth = () => {
         fullName: decodedToken.fullName || '',
         createdAt: decodedToken.createdAt || '',
       });
-      window.location.reload(); 
+  
+      // Atualiza a página ou navega para outra página conforme necessário
+      window.location.reload();
     } catch (err) {
-      setError(err.message);
+      // Atualiza o estado de erro e exibe a mensagem de erro
+      setError(err.message || 'Erro ao fazer login. Tente novamente mais tarde.');
       console.error('Erro ao fazer login:', err);
     }
   };
@@ -105,7 +119,7 @@ export const useAuth = () => {
         createdAt: decodedToken.createdAt || '',
       });
 
-      navigate('/login')
+      navigate('/login');
     } catch (err) {
       setError(err.message);
       console.error('Erro ao registrar:', err);
@@ -121,8 +135,17 @@ export const useAuth = () => {
       fullName: '',
       createdAt: '',
     });
-    navigate('/login');
+    window.location.reload();
   };
 
-  return { login, register, logout, error, token, userInfo };
+  // Adiciona a função clearError
+  const clearError = () => setError(null);
+
+  return (
+    <AuthContext.Provider value={{ login, register, logout, error, token, userInfo, clearError }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export const useAuth = () => useContext(AuthContext);

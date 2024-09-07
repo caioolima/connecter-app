@@ -1,6 +1,6 @@
 // src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
 import GlobalStyle from './styles/GlobalStyles'; // Importar o GlobalStyle
@@ -17,21 +17,19 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle /> {/* Aplicar o estilo global */}
-      <Router>
-        <AppContainer>
-          <Header />
-          <MainContent>
-            <Routes>
-              <Route path="/" element={<IntroPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/tasks/:username" element={<TasksPage />} />
-              <Route path="/user-tasks" element={<UserTasksPage />} /> {/* Adicionar a nova rota */}
-            </Routes>
-          </MainContent>
-          <Footer />
-        </AppContainer>
-      </Router>
+      <AppContainer>
+        <Header />
+        <MainContent>
+          <Routes>
+            <Route path="/" element={<IntroPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/tasks/:username" element={<TasksPage />} />
+            <Route path="/user-tasks" element={<UserTasksPage />} /> {/* Adicionar a nova rota */}
+          </Routes>
+        </MainContent>
+        <Footer />
+      </AppContainer>
     </ThemeProvider>
   );
 }
@@ -39,7 +37,7 @@ function App() {
 const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
-  background-color: #f1f1f1;
+  background-color: #000;
   min-height: 100vh;
 `;
 
