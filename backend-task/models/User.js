@@ -3,10 +3,24 @@ const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('User', {
-  username: { type: DataTypes.STRING, allowNull: false, unique: true }, // Adicionado campo para nome de usuário
-  fullName: { type: DataTypes.STRING, allowNull: false }, // Adicionado campo para nome completo
-  email: { type: DataTypes.STRING, allowNull: false, unique: true },
-  password: { type: DataTypes.STRING, allowNull: false }
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true, // Garante que o nome de usuário seja único
+  },
+  fullName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true, // Garante que o e-mail seja único
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  }
 }, {
   hooks: {
     beforeSave: async (user) => {

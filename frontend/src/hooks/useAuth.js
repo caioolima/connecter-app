@@ -55,7 +55,7 @@ export const useAuth = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao fazer login');
+        throw new Error('E-mail ou senha incorretos. Verifique e tente novamente.');
       }
 
       const data = await response.json();
@@ -70,6 +70,7 @@ export const useAuth = () => {
         fullName: decodedToken.fullName || '',
         createdAt: decodedToken.createdAt || '',
       });
+      window.location.reload(); 
     } catch (err) {
       setError(err.message);
       console.error('Erro ao fazer login:', err);
@@ -104,8 +105,7 @@ export const useAuth = () => {
         createdAt: decodedToken.createdAt || '',
       });
 
-      // Força o reload da página
-      window.location.reload();
+      navigate('/login')
     } catch (err) {
       setError(err.message);
       console.error('Erro ao registrar:', err);

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useInput } from '../hooks/useInput';
 
@@ -12,13 +12,17 @@ const RegisterForm = () => {
   const { value: password, onChange: handlePasswordChange } = useInput('');
   const { value: confirmPassword, onChange: handleConfirmPasswordChange } = useInput('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       alert('As senhas não coincidem');
       return;
     }
-    register(username, fullName, email, password);
+    try {
+      await register(username, fullName, email, password);
+    } catch (err) {
+      alert(err.message); // Exibe o erro para o usuário
+    }
   };
 
   return (
