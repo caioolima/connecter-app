@@ -58,43 +58,41 @@ const RegisterForm = () => {
             Já tem um ID? <StyledLink to="/login">Faça login</StyledLink>
           </Text>
         </Subtitle>
-        <ScrollContainer>
-          <Input
-            name="username"
-            type="text"
-            placeholder="Nome de Usuário"
-            value={formValues.username}
-            onChange={handleInputChangeWrapper}
-          />
-          <Input
-            name="fullName"
-            type="text"
-            placeholder="Nome Completo"
-            value={formValues.fullName}
-            onChange={handleInputChangeWrapper}
-          />
-          <Input
-            name="email"
-            type="email"
-            placeholder="E-mail"
-            value={formValues.email}
-            onChange={handleInputChangeWrapper}
-          />
-          <Input
-            name="password"
-            type="password"
-            placeholder="Senha"
-            value={formValues.password}
-            onChange={handleInputChangeWrapper}
-          />
-          <Input
-            name="confirmPassword"
-            type="password"
-            placeholder="Confirme a Senha"
-            value={formValues.confirmPassword}
-            onChange={handleInputChangeWrapper}
-          />
-        </ScrollContainer>
+        <Input
+          name="username"
+          type="text"
+          placeholder="Nome de Usuário"
+          value={formValues.username}
+          onChange={handleInputChangeWrapper}
+        />
+        <Input
+          name="fullName"
+          type="text"
+          placeholder="Nome Completo"
+          value={formValues.fullName}
+          onChange={handleInputChangeWrapper}
+        />
+        <Input
+          name="email"
+          type="email"
+          placeholder="E-mail"
+          value={formValues.email}
+          onChange={handleInputChangeWrapper}
+        />
+        <Input
+          name="password"
+          type="password"
+          placeholder="Senha"
+          value={formValues.password}
+          onChange={handleInputChangeWrapper}
+        />
+        <Input
+          name="confirmPassword"
+          type="password"
+          placeholder="Confirme a Senha"
+          value={formValues.confirmPassword}
+          onChange={handleInputChangeWrapper}
+        />
         <ButtonContainer>
           <Button type="submit">Registrar</Button>
         </ButtonContainer>
@@ -107,17 +105,16 @@ const RegisterForm = () => {
 const Container = styled.div`
   display: flex;
   padding: 1rem;
-  margin: 2rem auto;
+  margin: 8rem auto;
   justify-content: center;
   align-items: center;
-  height: 120vh;
+  height: 100vh; /* Ajuste a altura conforme necessário */
 `;
 
 const Form = styled.form`
   padding: 1rem;
-  max-width: 560px;
+  max-width: 500px;
   width: 100%;
-  max-height: 90vh;
   text-align: center;
   background: #1c1c1c;
   border-radius: 30px;
@@ -130,7 +127,6 @@ const Form = styled.form`
   @media (max-width: 768px) {
     width: 90%;
     padding: 1.5rem;
-    max-height: 95vh;
   }
 
   @media (max-width: 480px) {
@@ -153,21 +149,6 @@ const StyledLink = styled(Link)`
 
   &:hover {
     text-decoration: underline;
-  }
-`;
-
-const ScrollContainer = styled.div`
-  width: 100%;
-  max-height: 50vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 1rem;
-
-  @media (max-width: 480px) {
-    max-height: 60vh;
   }
 `;
 

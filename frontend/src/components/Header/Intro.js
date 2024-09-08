@@ -102,7 +102,7 @@ const IntroContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: bold;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   margin-bottom: 1.7rem;
