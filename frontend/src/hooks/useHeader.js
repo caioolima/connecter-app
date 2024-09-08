@@ -1,7 +1,6 @@
-// useHeader.js
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode'; // Correção do import do jwt-decode
 
 const useHeader = () => {
   const navigate = useNavigate();
@@ -121,7 +120,7 @@ const useHeader = () => {
     isUserMenuOpen,
     token,
     userInfo,
-    loading,
+    loading, // Retorna o estado de carregamento
     isOnLoginPage,
     isOnUserTasksPage,
     isAuthenticated,

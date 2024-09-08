@@ -26,7 +26,7 @@ const UserDetails = ({ fullName, email, createdAt, username }) => (
 );
 
 const DetailsCard = styled.div`
-  background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
+  background: linear-gradient(145deg, #1a1a1a, #121212);
   padding: 30px;
   border-radius: 16px;
   color: #e0e0e0;

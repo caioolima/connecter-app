@@ -20,7 +20,7 @@ const TasksPage = () => {
   return (
     <PageContainer>
       <Header>
-        <h1>Dashboard de {firstName}</h1>
+        <h1>Tarefas de {firstName}</h1>
         <p>Visualize suas tarefas e detalhes do usuário</p>
       </Header>
       <Content>
@@ -73,7 +73,7 @@ const Header = styled.header`
     font-size: 2.5rem;
     margin-bottom: 10px;
     font-weight: 700;
-    color: #ea4f97;
+    color: #fff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
@@ -101,7 +101,7 @@ const Content = styled.div`
 
 const TasksSection = styled.section`
   flex: 2;
-  background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
+  background: linear-gradient(145deg, #1a1a1a, #121212);
   padding: 25px;
   border-radius: 12px;
   box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3), -4px -4px 12px rgba(255, 255, 255, 0.2);
@@ -109,6 +109,7 @@ const TasksSection = styled.section`
   color: #f5f5f5;
   border: 1px solid #444;
   margin-bottom: 3rem;
+  margin-top: 40px;
 
   &:hover {
     box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.3);

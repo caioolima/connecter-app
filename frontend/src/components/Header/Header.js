@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaBars, FaTimes } from 'react-icons/fa'; // Importa o ícone de "x"
+import { FaBars, FaTimes } from 'react-icons/fa'; // Importa os ícones
 import UserMenu from './UserMenu';
 import TaskMenu from './TaskMenu';
 import useHeader from '../../hooks/useHeader';
@@ -19,6 +19,7 @@ const Header = () => {
     handleViewTasks,
     handleLogout,
     setIsTaskMenuOpen,
+    loading, // Adiciona a verificação de carregamento
   } = useHeader();
 
   // Referência para detectar clique fora do TaskMenu
@@ -40,10 +41,14 @@ const Header = () => {
     };
   }, [setIsTaskMenuOpen]);
 
+  if (loading) {
+    return null; // Exibe null enquanto os dados estão sendo carregados
+  }
+
   return (
     <Container>
       <StyledLink to={isAuthenticated ? `/tasks/${encodeURIComponent(userInfo.username)}` : '/'}>
-        <Logo src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2Fconnecter-logo-preview.png?alt=media&token=5891cb1a-9b80-4908-ba62-ebf81bbeb46a" alt="Connecter Logo" />
+      <Logo src="/connecter-logo-preview.png" alt="Connecter Logo" />
       </StyledLink>
       {isAuthenticated && !isOnUserTasksPage ? (
         <MenuContainer ref={menuRef}>

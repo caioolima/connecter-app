@@ -10,7 +10,7 @@ const TaskCard = ({ task, onViewTask }) => (
 );
 
 const Card = styled.div`
-  background-color: #333;
+  background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
   padding: 20px;
   border-radius: 8px;
   position: relative;
