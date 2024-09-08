@@ -2,7 +2,6 @@ import React from 'react';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaTasks, FaChartLine, FaRegLightbulb } from 'react-icons/fa';
-import { useInView } from 'react-intersection-observer';
 
 // Global Styles with animations
 const GlobalStyle = createGlobalStyle`
@@ -40,18 +39,14 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const Intro = () => {
-  const { ref: introRef, inView: introInView } = useInView({ triggerOnce: true });
-  const { ref: featuresRef, inView: featuresInView } = useInView({ triggerOnce: true });
-  const { ref: testimonialsRef, inView: testimonialsInView } = useInView({ triggerOnce: true });
-
   return (
     <>
       <GlobalStyle />
-      <IntroContainer ref={introRef} inView={introInView}>
+      <IntroContainer>
         <Title>Connecter</Title>
         <IntroText>Transforme suas tarefas em conquistas com uma gestão simples e eficiente.</IntroText>
         <LoginButton to="/login">Iniciar Sessão</LoginButton>
-        <FeaturesContainer ref={featuresRef} inView={featuresInView}>
+        <FeaturesContainer>
           <Feature>
             <FeatureIcon><FaTasks /></FeatureIcon>
             <FeatureTitle>Crie Tarefas</FeatureTitle>
@@ -73,7 +68,7 @@ const Intro = () => {
           <p>Descubra como a Connecter pode transformar a forma como você gerencia suas tarefas.</p>
         </CTASection>
         <CTAButton to="/register">Criar minha conta</CTAButton>
-        <TestimonialsContainer ref={testimonialsRef} inView={testimonialsInView}>
+        <TestimonialsContainer>
           <h2>O que nossos usuários dizem?</h2>
           <Testimonial>
             <TestimonialText>
@@ -105,10 +100,11 @@ const IntroContainer = styled.div`
   min-height: 100vh;
   color: #fff;
   background-color: #000;
-  animation: ${({ inView }) => (inView ? 'fadeIn 2s ease-in' : 'none')};
+  animation: fadeIn 2s ease-in;
 
   @media (max-width: 768px) {
     padding: 1rem;
+    margin: 2rem;
   }
 `;
 
@@ -119,6 +115,7 @@ const Title = styled.h1`
   margin-bottom: 1.7rem;
   overflow: hidden;
   color: #fff;
+  animation: fadeIn 2s ease-in;
 
   @media (max-width: 768px) {
     font-size: 3rem;
@@ -136,7 +133,7 @@ const IntroText = styled.p`
   margin: 1rem auto 2rem;
   max-width: 600px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  animation: ${({ inView }) => (inView ? 'slideUp 1s ease-out' : 'none')};
+  animation: slideUp 1s ease-out;
 
   @media (max-width: 768px) {
     font-size: 1.5rem;
@@ -184,7 +181,7 @@ const FeaturesContainer = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
-  animation: ${({ inView }) => (inView ? 'fadeIn 2s ease-in' : 'none')};
+  animation: fadeIn 2s ease-in;
 
   @media (max-width: 768px) {
     gap: 0.5rem;
@@ -201,7 +198,7 @@ const Feature = styled.div`
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   color: #000;
   transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
-  animation: ${({ inView }) => (inView ? 'slideUp 1s ease-out' : 'none')};
+  animation: slideUp 1s ease-out;
 
   &:hover {
     transform: translateY(-5px);
@@ -264,7 +261,7 @@ const FeatureDescription = styled.p`
 const CTASection = styled.div`
   text-align: center;
   margin: 3rem 0;
-  animation: ${({ inView }) => (inView ? 'slideUp 1s ease-out' : 'none')};
+  animation: slideUp 1s ease-out;
 
   h2 {
     font-size: 2rem;
@@ -306,13 +303,11 @@ const CTAButton = styled(Link)`
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 1rem;
-  transition: background-color 0.3s, transform 0.3s;
   text-decoration: none;
+  transition: background-color 0.3s, transform 0.3s;
   animation: pulse 1.5s infinite;
 
   &:hover {
-    color: #fff;
     background-color: #d43f82;
     transform: scale(1.05);
   }
@@ -331,7 +326,12 @@ const CTAButton = styled(Link)`
 const TestimonialsContainer = styled.div`
   text-align: center;
   margin: 3rem 0;
-  animation: ${({ inView }) => (inView ? 'fadeIn 2s ease-in' : 'none')};
+  animation: slideUp 1s ease-out;
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const Testimonial = styled.div`
@@ -340,40 +340,23 @@ const Testimonial = styled.div`
   border-radius: 10px;
   padding: 1.5rem;
   margin: 1rem;
-  max-width: 500px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   color: #000;
-  transition: transform 0.3s, box-shadow 0.3s;
-  animation: ${({ inView }) => (inView ? 'slideUp 1s ease-out' : 'none')};
 
   @media (max-width: 768px) {
-    max-width: 100%;
     padding: 1rem;
   }
 
   @media (max-width: 480px) {
     padding: 0.5rem;
+    margin: 0.5rem 0;
   }
 `;
 
 const TestimonialText = styled.p`
-  font-size: 1.2rem;
-  color: #333;
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-  }
-`;
-
-const TestimonialAuthor = styled.p`
   font-size: 1rem;
-  font-weight: bold;
-  color: #ea4f97;
-  margin-top: 0.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
 
   @media (max-width: 768px) {
     font-size: 0.9rem;
@@ -381,6 +364,20 @@ const TestimonialAuthor = styled.p`
 
   @media (max-width: 480px) {
     font-size: 0.8rem;
+  }
+`;
+
+const TestimonialAuthor = styled.p`
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #555;
+
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.7rem;
   }
 `;
 
