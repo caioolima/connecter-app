@@ -97,7 +97,7 @@ const Intro = () => {
 const IntroContainer = styled.div`
   text-align: center;
   padding: 2rem;
-  margin: 2rem;
+  margin: 4rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
