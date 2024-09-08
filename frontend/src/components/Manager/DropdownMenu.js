@@ -35,7 +35,7 @@ const DropdownMenu = ({ onEdit, onDelete, onComplete, isCompleted }) => {
             onMouseEnter={() => setHoveredItem('complete')}
             onMouseLeave={() => setHoveredItem(null)}
           >
-            {isCompleted ? 'Marcar como Pendente' : 'Marcar como Concluída'}
+            {isCompleted ? 'Marcar como Concluída' : 'Concluir'}
           </button>
           <button
             onClick={() => { onEdit(); setIsOpen(false); }}
@@ -81,7 +81,7 @@ const styles = {
     backgroundColor: '#1a1a1a',
     borderRadius: '5px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
-    minWidth: '150px',
+    minWidth: '80px',
     zIndex: 1000,
   },
   menuItem: {
@@ -92,6 +92,7 @@ const styles = {
     border: 'none',
     textAlign: 'left',
     cursor: 'pointer',
+    width: '80px',
     borderBottom: '1px solid #333',
     transition: 'background-color 0.3s',
   },

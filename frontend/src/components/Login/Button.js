@@ -49,6 +49,13 @@ const StyledButton = styled.button`
     cursor: not-allowed;
     opacity: 0.5;
   }
+
+  @media (max-width: 768px) {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.9rem;
+    right: 1.6rem; /* Ajuste o posicionamento para telas menores */
+  }
 `;
 
 Button.propTypes = {
