@@ -44,9 +44,9 @@ const UserIcon = styled.div`
   justify-content: center;
   border-radius: 50%;
   background-color: #333;
-  padding: 0.6rem;
+  padding: 0.4rem;
   transition: background-color 0.3s ease, border-color 0.3s ease;
-  border: 2px solid #fff; /* Borda branca discreta */
+  border: 1px solid #fff; /* Borda branca discreta */
 
   &:hover {
     background-color: #444; /* Cor de fundo sutilmente mais clara no hover */

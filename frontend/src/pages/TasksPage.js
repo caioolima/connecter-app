@@ -1,357 +1,154 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
-import { useAuth } from '../Context/AuthContext'; // Importando o hook useAuth
-import { jwtDecode } from 'jwt-decode';
-
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-};
-
-const formatDate = (dateString) => {
-  const options = {
-    day: '2-digit', // Dia do mês com dois dígitos (ex: "06")
-    month: '2-digit', // Mês com dois dígitos (ex: "09")
-    year: 'numeric' // Ano com quatro dígitos (ex: "2024")
-  };
-  return new Date(dateString).toLocaleDateString('pt-BR', options);
-};
-
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import useUserInfo from '../hooks/Tasks/useUserInfo';
+import useTasks from '../hooks/Tasks/useTasks';
+import TaskCard from '../components/Tasks Home/TaskCard';
+import Modal from '../components/Tasks Home/Modal';
+import UserDetails from '../components/Tasks Home/userDetails';
 
 const TasksPage = () => {
-  const { username } = useParams(); // Obtém o nome de usuário da URL
-  const [tasks, setTasks] = useState([]);
+  const { username } = useParams();
   const [selectedTask, setSelectedTask] = useState(null);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [createdAt, setCreatedAt] = useState(''); // Estado para a data de criação
-  const navigate = useNavigate();
 
-  const { token, userInfo } = useAuth(); // Utilize useAuth para obter informações do usuário
+  const { firstName, fullName, email, createdAt } = useUserInfo(username);
+  const tasks = useTasks(username);
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/users/user/${username}`);
-        if (response.ok) {
-          const data = await response.json();
-          setFullName(data.fullName || 'Nome não disponível');
-          setEmail(data.email || 'Email não disponível');
-          setCreatedAt(formatDate(data.createdAt) || 'Data não disponível');
-        } else {
-          console.error('Erro ao carregar informações do usuário:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar informações do usuário:', error);
-      }
-    };
-
-    const fetchTasks = async () => {
-      try {
-        const apiUrl = token
-          ? `http://localhost:5000/api/manager/tasks/${encodeURIComponent(userInfo.username)}`
-          : `http://localhost:5000/api/manager/tasks/${encodeURIComponent(username)}`;
-
-        const response = await fetch(apiUrl, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setTasks(data);
-        } else {
-          console.error('Erro ao carregar tarefas:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar tarefas:', error);
-      }
-    };
-
-    fetchUserInfo();
-    fetchTasks();
-  }, [navigate, username, token, userInfo.username]);
-
-  const handleViewTask = (task) => {
-    if (token) {
-      setSelectedTask(task);
-    } else {
-      setShowLoginModal(true);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setSelectedTask(null);
-  };
-
-  const handleCloseLoginModal = () => {
-    setShowLoginModal(false);
-  };
+  const handleViewTask = (task) => setSelectedTask(task);
+  const handleCloseModal = () => setSelectedTask(null);
 
   return (
-    <Container>
-      <WidgetsContainer>
-        <UserWidget>
-          <h2>Informações de {fullName}</h2>
-          <UserInfo>
-            <InfoItem>
-              <strong>Usuário:</strong> {username}
-            </InfoItem>
-            <InfoItem>
-              <strong>Email:</strong> {email}
-            </InfoItem>
-            <InfoItem>
-              <strong>Data de Criação:</strong> {createdAt}
-            </InfoItem>
-          </UserInfo>
-        </UserWidget>
-        <TasksWidget>
-          <h2>Tarefas de {fullName}</h2>
+    <PageContainer>
+      <Header>
+        <h1>Dashboard de {firstName}</h1>
+        <p>Visualize suas tarefas e detalhes do usuário</p>
+      </Header>
+      <Content>
+        <UserDetails 
+          fullName={fullName} 
+          email={email} 
+          createdAt={createdAt} 
+          username={username} 
+        />
+        <TasksSection>
+          <SectionTitle>Suas Tarefas</SectionTitle>
           {tasks.length > 0 ? (
-            <TaskGrid>
-              {tasks.slice(0, 6).map((task) => (
-                <TaskItem key={task.id}>
-                  <TaskName>{task.taskTitle}</TaskName>
-                  <TaskDate>{formatDate(task.createdAt)}</TaskDate>
-                  <ActionButton onClick={() => handleViewTask(task)}>
-                    Detalhes
-                  </ActionButton>
-                </TaskItem>
+            <TasksList>
+              {tasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onViewTask={() => handleViewTask(task)}
+                />
               ))}
-            </TaskGrid>
+            </TasksList>
           ) : (
-            <NoTasksMessage>Não há tarefas para exibir.</NoTasksMessage>
+            <NoTasksMessage>Não há tarefas disponíveis.</NoTasksMessage>
           )}
-        </TasksWidget>
-      </WidgetsContainer>
-
+        </TasksSection>
+      </Content>
       {selectedTask && (
-        <TaskModal>
-          <ModalContent>
-            <CloseButton onClick={handleCloseModal}>×</CloseButton>
-            <ModalHeader>
-              <h3>{selectedTask.taskTitle}</h3>
-              <ModalDate>{formatDate(selectedTask.createdAt)}</ModalDate>
-            </ModalHeader>
-            <ModalBody>
-              <p><strong>Descrição:</strong> {selectedTask.taskDescription}</p>
-              <p><strong>Status:</strong> {selectedTask.taskStatus ? 'Concluído' : 'Pendente'}</p>
-            </ModalBody>
-          </ModalContent>
-        </TaskModal>
+        <Modal task={selectedTask} onClose={handleCloseModal} />
       )}
-
-      {showLoginModal && (
-        <LoginModal>
-          <LoginModalContent>
-            <CloseButton onClick={handleCloseLoginModal}>×</CloseButton>
-            <h2>Você precisa estar logado para ver esta tarefa</h2>
-            <LoginButton onClick={() => navigate('/login')}>Login</LoginButton>
-          </LoginModalContent>
-        </LoginModal>
-      )}
-    </Container>
+    </PageContainer>
   );
 };
 
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  background: #000; /* Preto */
-  padding: 2rem;
-  min-height: 85vh;
-  align-items: flex-start;
-  color: #fff; /* Branco */
+const PageContainer = styled.div`
+  color: #f5f5f5;
+  padding: 20px;
+  min-height: 100vh;
+
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
 `;
 
-const WidgetsContainer = styled.div`
-  display: flex;
-  gap: 2rem;
-  width: 100%;
+const Header = styled.header`
+  text-align: center;
+  margin-bottom: 30px;
   margin-top: 5rem;
-  max-width: 1200px;
-  justify-content: center;
-`;
 
-const Widget = styled.div`
-  background: #111; /* Preto muito escuro */
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1), inset 0 -2px 4px rgba(255, 255, 255, 0.05);
-  padding: 2rem;
-  width: 100%;
-  box-sizing: border-box;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: ${fadeIn} 0.6s ease-in-out;
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: #ea4f97;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(255, 255, 255, 0.1);
+  p {
+    color: #bbb;
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+    }
   }
 `;
 
-const TasksWidget = styled(Widget)`
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+`;
+
+const TasksSection = styled.section`
   flex: 2;
-  max-width: 750px;
+  background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3), -4px -4px 12px rgba(255, 255, 255, 0.2);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  color: #f5f5f5;
+  border: 1px solid #444;
+  margin-bottom: 3rem;
 
-  h2 {
-    color: #fff; /* Branco */
-    font-weight: bold;
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
+  &:hover {
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.3);
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
   }
 `;
 
-const UserWidget = styled(Widget)`
-  flex: 1;
-  max-width: 350px;
-  height: auto;
+const SectionTitle = styled.h2`
+  font-size: 1.8rem;
+  color: #fff;
+  border-bottom: 2px solid #ea4f97;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  text-align: center;
+  transition: color 0.3s ease;
 
-  h2 {
-    color: #fff; /* Branco */
-    font-weight: bold;
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
+  &:hover {
+    color: #c3c3c3;
   }
 `;
 
-const UserInfo = styled.div`
-  font-size: 1rem;
-  color: #ccc; /* Cinza claro */
-
-  strong {
-    color: #fff; /* Branco */
-  }
-`;
-
-const InfoItem = styled.div`
-  margin-bottom: 0.5rem;
-`;
-
-const TaskGrid = styled.div`
+const TasksList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-`;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
 
-const TaskItem = styled.div`
-  background: #222; /* Cinza escuro */
-  border-radius: 10px;
-  padding: 1rem;
-  color: #fff; /* Branco */
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: #333; /* Cinza mais claro */
-  }
-`;
-
-const TaskName = styled.h3`
-  font-size: 1.2rem;
-  margin: 0;
-`;
-
-const TaskDate = styled.p`
-  font-size: 0.9rem;
-  color: #888; /* Cinza médio */
-`;
-
-const ActionButton = styled.button`
-  background: #ea4f97; /* Cor primária */
-  color: #fff; /* Branco */
-  border: none;
-  border-radius: 5px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: #f70073; /* Cor primária mais forte */
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 `;
 
 const NoTasksMessage = styled.p`
-  color: #ccc; /* Cinza claro */
-`;
-
-const TaskModal = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ModalContent = styled.div`
-  background: #111; /* Preto muito escuro */
-  border-radius: 10px;
-  padding: 2rem;
-  width: 80%;
-  max-width: 600px;
-  color: #fff; /* Branco */
-  position: relative;
-`;
-
-const ModalHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-`;
-
-const ModalDate = styled.p`
-  font-size: 0.9rem;
-  color: #ccc; /* Cinza claro */
-`;
-
-const ModalBody = styled.div`
-  p {
-    margin: 0.5rem 0;
-  }
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  color: #fff; /* Branco */
-  font-size: 1.5rem;
-  cursor: pointer;
-`;
-
-const LoginModal = styled(TaskModal)``;
-
-const LoginModalContent = styled(ModalContent)`
-  width: 90%;
-  max-width: 400px;
   text-align: center;
-`;
-
-const LoginButton = styled(ActionButton)`
-  background: #4bc5f5; /* Cor de link */
-  color: #fff; /* Branco */
-  margin-top: 1rem;
-
-  &:hover {
-    background: #3a9ed9; /* Cor de link mais escura */
-  }
+  color: #888;
+  margin-top: 20px;
 `;
 
 export default TasksPage;

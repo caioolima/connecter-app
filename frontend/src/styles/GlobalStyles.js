@@ -23,10 +23,6 @@ const GlobalStyle = createGlobalStyle`
     padding: 10px 20px;
     cursor: pointer;
     font-family: 'Raleway', sans-serif;
-
-    &:hover {
-      background-color: #0051a1; /* Azul mais escuro para hover */
-    }
   }
 `;
 
