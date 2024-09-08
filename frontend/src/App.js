@@ -5,7 +5,7 @@ import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
 import GlobalStyle from './styles/GlobalStyles'; // Importar o GlobalStyle
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import RegisterPage from './pages/RegisterForm';
 import TasksPage from './pages/TasksPage';
 import UserTasksPage from './pages/UserTasksPage'; // Importar o novo componente
 import Header from './components/Header/Header';

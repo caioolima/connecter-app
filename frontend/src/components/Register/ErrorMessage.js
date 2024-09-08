@@ -6,13 +6,15 @@ const ErrorMessage = ({ children }) => (
 );
 
 const StyledErrorMessage = styled.div`
-  color: red;
-  margin-top: 1rem;
-  position: absolute;
-  font-weight: bold;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
+color: red;
+font-weight: bold;
+position: absolute;
+bottom: 10px; /* Ajuste conforme necessário */
+left: 50%;
+transform: translateX(-50%);
+width: 90%; /* Ajuste conforme necessário */
+text-align: center;
 `;
+
 
 export default ErrorMessage;

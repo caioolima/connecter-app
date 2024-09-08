@@ -12,8 +12,8 @@ import Button from '../components/Login/Button';
 import RegisterLink from '../components/Login/RegisterLink';
 import ErrorMessage from '../components/Login/ErrorMessage';
 
-const LoginPage = () => {
-  const { login, error: authError, clearError } = useAuth(); // Pegue o erro de autenticação e clearError
+const LoginForm = () => {
+  const { login, loginError, clearLoginError } = useAuth();
   const { formValues, handleInputChange } = useFormState({
     email: '',
     password: '',
@@ -36,7 +36,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingStartTime(Date.now());
-    clearError(); // Limpa qualquer erro anterior
+    clearLoginError();
 
     try {
       await login(formValues.email, formValues.password);
@@ -45,13 +45,12 @@ const LoginPage = () => {
       // Adicionar lógica para lidar com remainingTime, se necessário
     } catch (err) {
       console.error('Erro ao fazer login:', err);
-      // O erro será manipulado pela função clearError na AuthContext
     }
   };
 
   const handleChange = (e) => {
-    handleInputChange(e); // Atualiza o valor do campo
-    clearError(); // Limpa a mensagem de erro ao digitar
+    handleInputChange(e);
+    clearLoginError(); // Limpa a mensagem de erro ao digitar
   };
 
   return (
@@ -65,7 +64,7 @@ const LoginPage = () => {
             type="email"
             placeholder="E-mail"
             value={formValues.email}
-            onChange={handleChange} // Usa handleChange para limpar o erro
+            onChange={handleChange}
             autoFocus
           />
           {!showPassword && (
@@ -84,18 +83,19 @@ const LoginPage = () => {
             type="password"
             placeholder="Senha"
             value={formValues.password}
-            onChange={handleChange} // Usa handleChange para limpar o erro
+            onChange={handleChange}
           />
           <Button type="submit">
             <FaArrowRight />
           </Button>
         </PasswordContainer>
         <RegisterLink to="/register">Criar um ID Connecter</RegisterLink>
-        {authError && <ErrorMessage>{authError}</ErrorMessage>} {/* Exibe o erro de autenticação */}
+        {loginError && <ErrorMessage>{loginError}</ErrorMessage>}
       </Form>
     </Container>
   );
 };
+
 
 const Container = styled.div`
   display: flex;
@@ -115,4 +115,4 @@ const Form = styled.form`
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 `;
 
-export default LoginPage;
+export default LoginForm;

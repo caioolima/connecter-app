@@ -11,7 +11,7 @@ import Button from '../components/Register/Button';
 import ErrorMessage from '../components/Register/ErrorMessage';
 
 const RegisterForm = () => {
-  const { register, error, clearError } = useAuth();
+  const { register, registerError, clearRegisterError } = useAuth();
   const { formValues, formError, handleInputChange, setError, clearError: clearFormError } = useFormState({
     username: '',
     fullName: '',
@@ -28,6 +28,7 @@ const RegisterForm = () => {
     }
     try {
       clearFormError();
+      clearRegisterError();
       await register(formValues.username, formValues.fullName, formValues.email, formValues.password);
     } catch (err) {
       setError(err.message);
@@ -36,8 +37,8 @@ const RegisterForm = () => {
 
   const handleInputChangeWrapper = (e) => {
     handleInputChange(e);
-    if (error || formError) {
-      clearError();
+    if (registerError || formError) {
+      clearRegisterError();
       clearFormError();
     }
   };
@@ -97,7 +98,7 @@ const RegisterForm = () => {
         <ButtonContainer>
           <Button type="submit">Registrar</Button>
         </ButtonContainer>
-        {(error || formError) && <ErrorMessage>{formError || error}</ErrorMessage>}
+        {(registerError || formError) && <ErrorMessage>{formError || registerError}</ErrorMessage>}
       </Form>
     </Container>
   );
@@ -105,11 +106,11 @@ const RegisterForm = () => {
 
 const Container = styled.div`
   display: flex;
-  margin: 5rem;
+  padding: 1rem;
+  margin: 2rem auto;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  color: #fff;
+  height: 120vh;
 `;
 
 const Form = styled.form`
@@ -125,11 +126,24 @@ const Form = styled.form`
   flex-direction: column;
   align-items: center;
   position: relative;
+
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 1.5rem;
+    max-height: 95vh;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 20px;
+  }
 `;
 
 const Text = styled.span`
   color: #fff;
   margin-left: 5px;
+  font-size: 0.9rem;
 `;
 
 const StyledLink = styled(Link)`
@@ -144,19 +158,24 @@ const StyledLink = styled(Link)`
 
 const ScrollContainer = styled.div`
   width: 100%;
-  max-height: 30vh;
+  max-height: 50vh;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 1rem;
+
+  @media (max-width: 480px) {
+    max-height: 60vh;
+  }
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   width: 100%;
-  justify-content: end;
+  justify-content: center;
   margin-top: 2rem;
-  position: relative;
 `;
 
 export default RegisterForm;

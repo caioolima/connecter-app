@@ -6,7 +6,8 @@ import { jwtDecode } from 'jwt-decode';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [error, setError] = useState(null);
+  const [loginError, setLoginError] = useState(null);
+  const [registerError, setRegisterError] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [userInfo, setUserInfo] = useState({
     username: '',
@@ -49,7 +50,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // Verifica se todos os campos obrigatórios estão preenchidos
       if (!email || !password) {
         throw new Error('E-mail e senha são obrigatórios.');
       }
@@ -62,18 +62,15 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
   
-      // Verifica se a resposta foi bem-sucedida
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'E-mail ou senha incorretos. Verifique e tente novamente.');
       }
   
-      // Processa a resposta se o login for bem-sucedido
       const data = await response.json();
       localStorage.setItem('token', data.token);
       setToken(data.token);
   
-      // Atualiza o estado com o usuário decodificado
       const decodedToken = jwtDecode(data.token);
       setUserInfo({
         username: decodedToken.username || '',
@@ -82,11 +79,9 @@ export const AuthProvider = ({ children }) => {
         createdAt: decodedToken.createdAt || '',
       });
   
-      // Atualiza a página ou navega para outra página conforme necessário
       window.location.reload();
     } catch (err) {
-      // Atualiza o estado de erro e exibe a mensagem de erro
-      setError(err.message || 'Erro ao fazer login. Tente novamente mais tarde.');
+      setLoginError(err.message || 'Erro ao fazer login. Tente novamente mais tarde.');
       console.error('Erro ao fazer login:', err);
     }
   };
@@ -110,7 +105,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', data.token);
       setToken(data.token);
 
-      // Atualiza o estado com o usuário decodificado
       const decodedToken = jwtDecode(data.token);
       setUserInfo({
         username: decodedToken.username || '',
@@ -121,7 +115,7 @@ export const AuthProvider = ({ children }) => {
 
       navigate('/login');
     } catch (err) {
-      setError(err.message);
+      setRegisterError(err.message);
       console.error('Erro ao registrar:', err);
     }
   };
@@ -138,11 +132,11 @@ export const AuthProvider = ({ children }) => {
     window.location.reload();
   };
 
-  // Adiciona a função clearError
-  const clearError = () => setError(null);
+  const clearLoginError = () => setLoginError(null);
+  const clearRegisterError = () => setRegisterError(null);
 
   return (
-    <AuthContext.Provider value={{ login, register, logout, error, token, userInfo, clearError }}>
+    <AuthContext.Provider value={{ login, register, logout, loginError, registerError, token, userInfo, clearLoginError, clearRegisterError }}>
       {children}
     </AuthContext.Provider>
   );

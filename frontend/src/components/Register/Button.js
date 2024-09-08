@@ -11,6 +11,7 @@ const StyledButton = styled.button`
   width: 6.2rem;
   height: 2.4rem;
   padding: 0.5rem 1rem;
+  margin-bottom: 2rem;
   background-color: #ea4f97;
   border: none;
   color: #fff;
