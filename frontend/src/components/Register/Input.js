@@ -34,6 +34,7 @@ const StyledInput = styled.input`
   @media (max-width: 768px) {
     font-size: 0.8rem; /* Ajusta o tamanho da fonte em telas menores */
     padding: 0.6rem; /* Ajusta o padding interno */
+    width: 80%;
   }
 
   @media (max-width: 480px) {
