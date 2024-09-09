@@ -22,7 +22,6 @@ const StyledInput = styled.input`
   font-size: 0.875rem; /* Ajusta o tamanho da fonte */
   color: #fff;
   background-color: #333;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   transition: border-color 0.3s, box-shadow 0.3s;
 
   &:focus {

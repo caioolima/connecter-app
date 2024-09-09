@@ -22,8 +22,6 @@ const StyledInput = styled.input`
   font-size: 1rem;
   color: #fff;
   background-color: #333;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
   transition:
     border-color 0.3s,
     box-shadow 0.3s;
