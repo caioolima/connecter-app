@@ -1,13 +1,15 @@
-// AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
+// Cria o contexto de autenticação
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  // Estados para armazenar erros de login e registro
   const [loginError, setLoginError] = useState(null);
   const [registerError, setRegisterError] = useState(null);
+  // Estado para armazenar o token do usuário e as informações do usuário
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [userInfo, setUserInfo] = useState({
     username: '',
@@ -15,8 +17,10 @@ export const AuthProvider = ({ children }) => {
     fullName: '',
     createdAt: '',
   });
+
   const navigate = useNavigate();
 
+  // Efeito para decodificar o token e atualizar as informações do usuário
   useEffect(() => {
     if (token) {
       try {
@@ -28,6 +32,7 @@ export const AuthProvider = ({ children }) => {
           createdAt: decodedToken.createdAt || '',
         });
       } catch (error) {
+        // Se houver um erro na decodificação do token, limpa o token e informações do usuário
         console.error('Erro ao decodificar o token', error);
         localStorage.removeItem('token');
         setToken('');
@@ -39,6 +44,7 @@ export const AuthProvider = ({ children }) => {
         });
       }
     } else {
+      // Se não houver token, limpa as informações do usuário
       setUserInfo({
         username: '',
         email: '',
@@ -48,12 +54,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
+  // Função para login do usuário
   const login = async (email, password) => {
     try {
       if (!email || !password) {
         throw new Error('E-mail e senha são obrigatórios.');
       }
-  
+
       const response = await fetch('https://connecter-app-production.up.railway.app/api/users/login', {
         method: 'POST',
         headers: {
@@ -61,16 +68,16 @@ export const AuthProvider = ({ children }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'E-mail ou senha incorretos. Verifique e tente novamente.');
       }
-  
+
       const data = await response.json();
       localStorage.setItem('token', data.token);
       setToken(data.token);
-  
+
       const decodedToken = jwtDecode(data.token);
       setUserInfo({
         username: decodedToken.username || '',
@@ -78,7 +85,7 @@ export const AuthProvider = ({ children }) => {
         fullName: decodedToken.fullName || '',
         createdAt: decodedToken.createdAt || '',
       });
-  
+
       window.location.reload();
     } catch (err) {
       setLoginError(err.message || 'Erro ao fazer login. Tente novamente mais tarde.');
@@ -86,9 +93,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Função para registro do usuário
   const register = async (username, fullName, email, password) => {
     try {
-      const response = await fetch('https://connecter-app-production.up.railway.app//api/users/register', {
+      const response = await fetch('https://connecter-app-production.up.railway.app/api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,6 +128,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Função para logout do usuário
   const logout = () => {
     localStorage.removeItem('token');
     setToken('');
@@ -132,9 +141,11 @@ export const AuthProvider = ({ children }) => {
     window.location.reload();
   };
 
+  // Funções para limpar erros de login e registro
   const clearLoginError = () => setLoginError(null);
   const clearRegisterError = () => setRegisterError(null);
 
+  // Provedor do contexto com valores e funções fornecidos
   return (
     <AuthContext.Provider value={{ login, register, logout, loginError, registerError, token, userInfo, clearLoginError, clearRegisterError }}>
       {children}
@@ -142,4 +153,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Hook personalizado para usar o contexto de autenticação
 export const useAuth = () => useContext(AuthContext);

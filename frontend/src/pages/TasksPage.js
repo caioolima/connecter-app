@@ -7,14 +7,20 @@ import TaskCard from '../components/Tasks Home/TaskCard';
 import Modal from '../components/Tasks Home/Modal';
 import UserDetails from '../components/Tasks Home/userDetails';
 
+// Componente principal da página de tarefas
 const TasksPage = () => {
+  // Obtém o nome de usuário da URL usando useParams
   const { username } = useParams();
+  // Estado para armazenar a tarefa selecionada e controlar a exibição do loader
   const [selectedTask, setSelectedTask] = useState(null);
   const [showLoader, setShowLoader] = useState(true); // Estado para controlar a exibição do loader
 
+  // Hook personalizado para obter informações do usuário
   const { firstName, fullName, email, createdAt, loading: userLoading } = useUserInfo(username);
+  // Hook personalizado para obter as tarefas do usuário
   const { tasks, loading: tasksLoading } = useTasks(username);
 
+  // Efeito para ocultar o loader quando os dados do usuário e das tarefas são carregados
   useEffect(() => {
     if (!userLoading && !tasksLoading) {
       const timer = setTimeout(() => {
@@ -25,9 +31,11 @@ const TasksPage = () => {
     }
   }, [userLoading, tasksLoading]);
 
+  // Funções para lidar com a visualização e fechamento do modal
   const handleViewTask = (task) => setSelectedTask(task);
   const handleCloseModal = () => setSelectedTask(null);
 
+  // Se os dados ainda estão carregando, exibe um loader
   if (userLoading || tasksLoading) {
     return (
       <PageContainer>
@@ -36,6 +44,7 @@ const TasksPage = () => {
     );
   }
 
+  // Renderiza a página com detalhes do usuário e lista de tarefas
   return (
     <PageContainer>
       <Header>
@@ -44,6 +53,7 @@ const TasksPage = () => {
       </Header>
       <Content>
         <UserDetailsSection>
+          {/* Exibe detalhes do usuário */}
           <UserDetails 
             fullName={fullName} 
             email={email} 
@@ -55,6 +65,7 @@ const TasksPage = () => {
           <SectionTitle>Suas Tarefas</SectionTitle>
           {tasks.length > 0 ? (
             <TasksList>
+              {/* Mapeia e exibe cada tarefa */}
               {tasks.map((task) => (
                 <TaskCard
                   key={task.id}
@@ -68,6 +79,7 @@ const TasksPage = () => {
           )}
         </TasksSection>
       </Content>
+      {/* Exibe o modal se uma tarefa estiver selecionada */}
       {selectedTask && (
         <Modal task={selectedTask} onClose={handleCloseModal} />
       )}
@@ -75,6 +87,7 @@ const TasksPage = () => {
   );
 };
 
+// Estilo do contêiner principal da página
 const PageContainer = styled.div`
   color: #f5f5f5;
   padding: 20px;
@@ -85,6 +98,7 @@ const PageContainer = styled.div`
   }
 `;
 
+// Estilo do cabeçalho da página
 const Header = styled.header`
   text-align: center;
   margin-bottom: 30px;
@@ -110,6 +124,7 @@ const Header = styled.header`
   }
 `;
 
+// Estilo do conteúdo da página com layout flexível
 const Content = styled.div`
   display: flex;
   flex-direction: column;
@@ -122,11 +137,13 @@ const Content = styled.div`
   }
 `;
 
+// Estilo da seção de detalhes do usuário
 const UserDetailsSection = styled.div`
-  flex: 2; /* Define um flex de 1 para UserDetails */
+  flex: 2; /* Define um flex de 2 para UserDetails */
   margin-right: 20px; /* Adiciona um espaço à direita */
 `;
 
+// Estilo da seção de tarefas com gradiente e efeitos de sombra
 const TasksSection = styled.section`
   flex: 3; /* Define um flex de 3 para TasksSection */
   background: linear-gradient(145deg, #1a1a1a, #121212);
@@ -149,6 +166,7 @@ const TasksSection = styled.section`
   }
 `;
 
+// Estilo do título da seção de tarefas
 const SectionTitle = styled.h2`
   font-size: 1.8rem;
   color: #fff;
@@ -164,6 +182,7 @@ const SectionTitle = styled.h2`
   }
 `;
 
+// Estilo da lista de tarefas usando grid responsivo
 const TasksList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -174,12 +193,14 @@ const TasksList = styled.div`
   }
 `;
 
+// Estilo para a mensagem quando não há tarefas
 const NoTasksMessage = styled.p`
   text-align: center;
   color: #888;
   margin-top: 20px;
 `;
 
+// Estilo do loader de carregamento
 const Loader = styled.div`
   text-align: center;
   color: #fff;

@@ -1,9 +1,10 @@
+// Define um tema com cores usadas globalmente na aplicação
 const theme = {
   colors: {
-    background: '#FFFFFF', // Fundo Branco
-    header: '#FFFFFF', // Header Branco
-    text: '#000000', // Fonte Preto
-    button: '#007AFF', // Azul Apple
+    background: '#FFFFFF', // Cor de fundo principal
+    header: '#FFFFFF', // Cor de fundo do cabeçalho
+    text: '#000000', // Cor do texto
+    button: '#007AFF', // Cor de fundo do botão
   },
 };
 

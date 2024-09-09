@@ -3,8 +3,10 @@ import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaTasks, FaChartLine, FaRegLightbulb } from 'react-icons/fa';
 
-// Global Styles with animations
+// Estilos Globais com animações
+// Define estilos globais e animações para toda a aplicação
 const GlobalStyle = createGlobalStyle`
+  // Animação de keyframe para o efeito de fade-in (aparecimento gradual)
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -14,6 +16,7 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
+  // Animação de keyframe para o efeito de slide-up (deslizar para cima)
   @keyframes slideUp {
     from {
       transform: translateY(20px);
@@ -25,6 +28,7 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
+  // Animação de keyframe para o efeito de pulso (escala pulsante)
   @keyframes pulse {
     0% {
       transform: scale(1);
@@ -38,15 +42,22 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+// Componente Intro
+// Este componente serve como a página inicial ou seção introdutória da aplicação
 const Intro = () => {
   return (
     <>
       <GlobalStyle />
       <IntroContainer>
+        {/* Título principal da seção introdutória */}
         <Title>Connecter Notes</Title>
+        {/* Texto introdutório curto */}
         <IntroText>Transforme suas tarefas em conquistas com uma gestão simples e eficiente.</IntroText>
+        {/* Botão de login que leva para a página de login */}
         <LoginButton to="/login">Iniciar Sessão</LoginButton>
+        {/* Container para as descrições das funcionalidades */}
         <FeaturesContainer>
+          {/* Blocos individuais de funcionalidades */}
           <Feature>
             <FeatureIcon><FaTasks /></FeatureIcon>
             <FeatureTitle>Crie Tarefas</FeatureTitle>
@@ -63,13 +74,17 @@ const Intro = () => {
             <FeatureDescription>Uma interface intuitiva que torna a gestão das tarefas mais fácil do que nunca.</FeatureDescription>
           </Feature>
         </FeaturesContainer>
+        {/* Seção de chamada para ação (CTA) */}
         <CTASection>
           <h2>Pronto para começar?</h2>
           <p>Descubra como a Connecter pode transformar a forma como você gerencia suas tarefas.</p>
         </CTASection>
+        {/* Botão de chamada para ação para criar uma conta */}
         <CTAButton to="/register">Criar minha conta</CTAButton>
+        {/* Container para os depoimentos dos usuários */}
         <TestimonialsContainer>
           <h2>O que nossos usuários dizem?</h2>
+          {/* Depoimento individual */}
           <Testimonial>
             <TestimonialText>
               "A Connecter mudou a forma como eu gerencio meu tempo e tarefas. Simples e eficaz!"
@@ -88,7 +103,8 @@ const Intro = () => {
   );
 };
 
-// Styled Components
+// Componentes Estilizados
+// Define os estilos para os componentes da página introdutória
 const IntroContainer = styled.div`
   text-align: center;
   padding: 2rem;
@@ -265,12 +281,14 @@ const CTASection = styled.div`
 
   h2 {
     font-size: 2rem;
-    margin-bottom: 1rem;
+    color: #fff;
   }
 
   p {
     font-size: 1.2rem;
-    margin: 1rem 0;
+    color: #ccc;
+    max-width: 600px;
+    margin: 1rem auto;
   }
 
   @media (max-width: 768px) {
@@ -297,19 +315,17 @@ const CTASection = styled.div`
 const CTAButton = styled(Link)`
   background-color: #ea4f97;
   color: #fff;
-  border: none;
   padding: 0.75rem 2rem;
   border-radius: 20px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  transition: background-color 0.3s, transform 0.3s;
-  animation: pulse 1.5s infinite;
+  margin-top: 1rem;
+  transition: background-color 0.3s;
 
   &:hover {
     background-color: #d43f82;
-    transform: scale(1.05);
   }
 
   @media (max-width: 768px) {
@@ -324,13 +340,25 @@ const CTAButton = styled(Link)`
 `;
 
 const TestimonialsContainer = styled.div`
-  text-align: center;
   margin: 3rem 0;
-  animation: slideUp 1s ease-out;
+  text-align: center;
+  animation: fadeIn 2s ease-in;
 
   h2 {
     font-size: 2rem;
-    margin-bottom: 1rem;
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    h2 {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h2 {
+      font-size: 1.2rem;
+    }
   }
 `;
 
@@ -338,18 +366,18 @@ const Testimonial = styled.div`
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 1.5rem;
-  margin: 1rem;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin: 1rem auto;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   color: #000;
 
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 
   @media (max-width: 480px) {
     padding: 0.5rem;
-    margin: 0.5rem 0;
   }
 `;
 
@@ -369,8 +397,8 @@ const TestimonialText = styled.p`
 
 const TestimonialAuthor = styled.p`
   font-size: 0.9rem;
-  font-weight: bold;
-  color: #555;
+  color: #666;
+  font-style: italic;
 
   @media (max-width: 768px) {
     font-size: 0.8rem;

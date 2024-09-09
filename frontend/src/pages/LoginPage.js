@@ -12,42 +12,49 @@ import Button from '../components/Login/Button';
 import RegisterLink from '../components/Login/RegisterLink';
 import ErrorMessage from '../components/Login/ErrorMessage';
 
+// Componente de formulário de login
 const LoginForm = () => {
+  // Obtém funções e estado do contexto de autenticação
   const { login, loginError, clearLoginError } = useAuth();
+  // Obtém valores e funções para gerenciar o estado do formulário
   const { formValues, handleInputChange } = useFormState({
     email: '',
     password: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [loadingStartTime, setLoadingStartTime] = useState(null);
-  const [minLoadingDuration] = useState(5000);
+  const [showPassword, setShowPassword] = useState(false); // Estado para controlar a exibição da senha
+  const [loadingStartTime, setLoadingStartTime] = useState(null); // Estado para controlar o início do carregamento
+  const [minLoadingDuration] = useState(5000); // Duração mínima de carregamento
 
+  // Função para validar o e-mail com regex
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+  // Função para mostrar a senha, se o e-mail for válido
   const handleShowPassword = () => {
     if (validateEmail(formValues.email)) {
       setShowPassword(true);
     }
   };
 
+  // Função para lidar com o envio do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoadingStartTime(Date.now());
-    clearLoginError();
+    setLoadingStartTime(Date.now()); // Define o horário de início do carregamento
+    clearLoginError(); // Limpa qualquer erro de login existente
 
     try {
-      await login(formValues.email, formValues.password);
-      const elapsedTime = Date.now() - loadingStartTime;
+      await login(formValues.email, formValues.password); // Tenta fazer o login
+      const elapsedTime = Date.now() - loadingStartTime; // Calcula o tempo decorrido
       const remainingTime = Math.max(minLoadingDuration - elapsedTime, 0);
-      // Adicionar lógica para lidar com remainingTime, se necessário
+      // Lógica adicional pode ser adicionada para lidar com remainingTime, se necessário
     } catch (err) {
-      console.error('Erro ao fazer login:', err);
+      console.error('Erro ao fazer login:', err); // Log de erros
     }
   };
 
+  // Função para lidar com mudanças nos campos de entrada
   const handleChange = (e) => {
     handleInputChange(e);
     clearLoginError(); // Limpa a mensagem de erro ao digitar
@@ -56,8 +63,8 @@ const LoginForm = () => {
   return (
     <Container>
       <Form onSubmit={handleSubmit}>
-        <Logo />
-        <Title>Faça login com seu ID Connecter</Title>
+        <Logo /> {/* Componente logo */}
+        <Title>Faça login com seu ID Connecter</Title> {/* Título do formulário */}
         <EmailContainer>
           <Input
             name="email"
@@ -90,29 +97,30 @@ const LoginForm = () => {
           </Button>
         </PasswordContainer>
         <RegisterLink to="/register">Criar um ID Connecter</RegisterLink>
-        {loginError && <ErrorMessage>{loginError}</ErrorMessage>}
+        {loginError && <ErrorMessage>{loginError}</ErrorMessage>} {/* Mensagem de erro se houver */}
       </Form>
     </Container>
   );
 };
 
-
+// Estilo para o contêiner principal do formulário
 const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 60vh;
-  margin-top: 9rem;
+  display: flex; /* Usa flexbox para layout */
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center; /* Centraliza verticalmente */
+  height: 60vh; /* Define a altura do contêiner como 60% da altura da viewport */
+  margin-top: 9rem; /* Adiciona uma margem no topo */
 `;
 
+// Estilo para o formulário de login
 const Form = styled.form`
-  padding: 2rem;
-  max-width: 560px;
-  width: 100%;
-  text-align: center;
-  background: #1c1c1c;
-  border-radius: 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding: 2rem; /* Adiciona espaçamento interno */
+  max-width: 560px; /* Define a largura máxima */
+  width: 100%; /* Define a largura como 100% do contêiner pai */
+  text-align: center; /* Centraliza o texto */
+  background: #1c1c1c; /* Define o fundo como uma cor escura */
+  border-radius: 30px; /* Define o raio da borda */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* Adiciona sombra ao formulário */
 `;
 
 export default LoginForm;

@@ -1,12 +1,13 @@
-import React, { useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { FaBars, FaTimes } from 'react-icons/fa'; // Importa os ícones
-import UserMenu from './UserMenu';
-import TaskMenu from './TaskMenu';
-import useHeader from '../../hooks/useHeader';
+import React, { useRef, useEffect } from 'react'; // Importa o React e hooks useRef e useEffect para gerenciar referências e efeitos colaterais
+import { Link } from 'react-router-dom'; // Importa o componente Link do react-router-dom para navegação entre páginas
+import styled from 'styled-components'; // Importa styled-components para estilização dos componentes
+import { FaBars, FaTimes } from 'react-icons/fa'; // Importa ícones para o menu
+import UserMenu from './UserMenu'; // Importa o componente UserMenu
+import TaskMenu from './TaskMenu'; // Importa o componente TaskMenu
+import useHeader from '../../hooks/useHeader'; // Importa o hook personalizado useHeader para gerenciar o estado do cabeçalho
 
 const Header = () => {
+  // Desestrutura o estado e funções retornadas pelo hook useHeader
   const {
     isTaskMenuOpen,
     isUserMenuOpen,
@@ -19,13 +20,13 @@ const Header = () => {
     handleViewTasks,
     handleLogout,
     setIsTaskMenuOpen,
-    loading, // Adiciona a verificação de carregamento
+    loading, // Verifica se os dados estão carregando
   } = useHeader();
 
-  // Referência para detectar clique fora do TaskMenu
+  // Referência para detectar cliques fora do TaskMenu
   const menuRef = useRef(null);
 
-  // Efeito para detectar cliques fora do menu e fechar
+  // Efeito para detectar cliques fora do menu e fechar o menu de tarefas
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -33,22 +34,22 @@ const Header = () => {
       }
     };
 
-    // Adiciona evento ao clicar fora
+    // Adiciona evento de clique fora do menu
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      // Remove evento ao desmontar
+      // Remove o evento de clique fora do menu ao desmontar o componente
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [setIsTaskMenuOpen]);
 
   if (loading) {
-    return null; // Exibe null enquanto os dados estão sendo carregados
+    return null; // Retorna null enquanto os dados estão sendo carregados
   }
 
   return (
     <Container>
       <StyledLink to={isAuthenticated ? `/tasks/${encodeURIComponent(userInfo.username)}` : '/'}>
-      <Logo src="/connecter-logo-preview.png" alt="Connecter Logo" />
+        <Logo src="/connecter-logo-preview.png" alt="Connecter Logo" />
       </StyledLink>
       {isAuthenticated && !isOnUserTasksPage ? (
         <MenuContainer ref={menuRef}>
@@ -69,7 +70,7 @@ const Header = () => {
             onLogout={handleLogout}
             onClick={() => {
               toggleUserMenu();
-              // Fechar o menu de tarefas se o menu de usuário for aberto
+              // Fecha o menu de tarefas se o menu de usuário for aberto
               if (isTaskMenuOpen) {
                 setIsTaskMenuOpen(false);
               }
@@ -88,6 +89,7 @@ const Header = () => {
   );
 };
 
+// Estilo do container do cabeçalho
 const Container = styled.header`
   display: flex;
   align-items: center;
@@ -105,6 +107,7 @@ const Container = styled.header`
   backdrop-filter: blur(8px);
 `;
 
+// Estilo do link no cabeçalho
 const StyledLink = styled(Link)`
   display: flex;
   align-items: center;
@@ -112,12 +115,14 @@ const StyledLink = styled(Link)`
   height: 100%;
 `;
 
+// Estilo do logo no cabeçalho
 const Logo = styled.img`
   height: 30px;
   width: auto;
   cursor: pointer;
 `;
 
+// Estilo do container do menu
 const MenuContainer = styled.div`
   display: flex;
   align-items: center;
@@ -126,19 +131,21 @@ const MenuContainer = styled.div`
   margin-right: 2rem;
 `;
 
+// Estilo do ícone do menu
 const MenuIcon = styled.div`
   font-size: 1.8rem;
   cursor: pointer;
   margin-right: 1.5rem;
   color: #fff;
-  transition: color 0.3s ease, transform 0.3s ease; /* Adicionada a transição */
+  transition: color 0.3s ease, transform 0.3s ease; // Transição suave para cor e transformação
 
   &:hover {
-    color: #ea4f97; /* Cor do ícone ao passar o mouse */
-    transform: scale(1.1); /* Leve aumento de escala ao passar o mouse */
+    color: #ea4f97; // Cor do ícone ao passar o mouse
+    transform: scale(1.1); // Leve aumento de escala ao passar o mouse
   }
 `;
 
+// Estilo do botão de login
 const LoginButton = styled(Link)`
   color: #fff;
   text-decoration: none;
@@ -149,11 +156,11 @@ const LoginButton = styled(Link)`
   border-radius: 6px;
   font-weight: bold;
   font-size: 1rem;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.3s, color 0.3s; // Transição suave para cor de fundo e cor do texto
 
   &:hover {
-    background-color: #fff;
-    color: #000;
+    background-color: #fff; // Cor de fundo ao passar o mouse
+    color: #000; // Cor do texto ao passar o mouse
   }
 `;
 
