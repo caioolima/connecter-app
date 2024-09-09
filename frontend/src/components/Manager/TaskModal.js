@@ -38,10 +38,10 @@ const TaskModal = ({ isOpen, onClose, onSave, task }) => {
           onChange={handleChange}
         />
         <ButtonContainer>
-          <Button onClick={handleSubmit} save>
+          <Button onClick={handleSubmit} $variant="save">
             Salvar
           </Button>
-          <Button onClick={handleClose} cancel>
+          <Button onClick={handleClose} $variant="cancel">
             Cancelar
           </Button>
         </ButtonContainer>
@@ -137,9 +137,9 @@ const ButtonContainer = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: ${({ save, cancel }) =>
-    save ? '#ea4f97' : cancel ? '#555' : '#ea4f97'};
-  color: ${({ cancel }) => (cancel ? '#fff' : '#e0e0e0')};
+  background-color: ${({ $variant }) =>
+    $variant === 'save' ? '#ea4f97' : $variant === 'cancel' ? '#555' : '#ea4f97'};
+  color: ${({ $variant }) => ($variant === 'cancel' ? '#fff' : '#e0e0e0')};
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
@@ -150,8 +150,8 @@ const Button = styled.button`
   margin: 0 5px;
 
   &:hover {
-    background-color: ${({ save, cancel }) =>
-      save ? '#e60066' : cancel ? '#666' : '#f291be'};
+    background-color: ${({ $variant }) =>
+      $variant === 'save' ? '#e60066' : $variant === 'cancel' ? '#666' : '#f291be'};
   }
 `;
 

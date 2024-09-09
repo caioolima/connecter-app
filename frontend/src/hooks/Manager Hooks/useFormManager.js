@@ -1,12 +1,7 @@
-// useFormManager.js
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const useFormManager = (initialData = {}) => {
   const [formData, setFormData] = useState(initialData);
-
-  useEffect(() => {
-    setFormData(initialData);
-  }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

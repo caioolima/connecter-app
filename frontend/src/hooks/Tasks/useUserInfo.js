@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const useUserInfo = (username) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [createdAt, setCreatedAt] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -11,24 +16,35 @@ const useUserInfo = (username) => {
         const response = await fetch(`http://localhost:5000/api/users/user/${username}`);
         if (response.ok) {
           const data = await response.json();
-          setFullName(data.fullName || 'Nome completo não disponível');
-          setEmail(data.email || 'Email não disponível');
-          setCreatedAt(formatDate(data.createdAt) || 'Data não disponível');
+          if (data) {
+            setFullName(data.fullName || 'Nome completo não disponível');
+            setEmail(data.email || 'Email não disponível');
+            setCreatedAt(formatDate(data.createdAt) || 'Data não disponível');
+          } else {
+            setError(true);
+          }
         } else {
-          console.error('Erro ao carregar informações do usuário:', response.statusText);
+          setError(true);
         }
       } catch (error) {
-        console.error('Erro ao carregar informações do usuário:', error);
+        setError(true);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserInfo();
   }, [username]);
 
-  // Extraindo o primeiro nome
+  useEffect(() => {
+    if (error) {
+      navigate('/error'); // Redireciona para a página de erro
+    }
+  }, [error, navigate]);
+
   const firstName = fullName ? fullName.split(' ')[0] : 'Nome não disponível';
 
-  return { firstName, fullName, email, createdAt };
+  return { firstName, fullName, email, createdAt, loading, error };
 };
 
 const formatDate = (dateString) => {

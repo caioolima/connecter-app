@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import useUserInfo from '../hooks/Tasks/useUserInfo';
@@ -10,12 +10,31 @@ import UserDetails from '../components/Tasks Home/userDetails';
 const TasksPage = () => {
   const { username } = useParams();
   const [selectedTask, setSelectedTask] = useState(null);
+  const [showLoader, setShowLoader] = useState(true); // Estado para controlar a exibição do loader
 
-  const { firstName, fullName, email, createdAt } = useUserInfo(username);
-  const tasks = useTasks(username);
+  const { firstName, fullName, email, createdAt, loading: userLoading } = useUserInfo(username);
+  const { tasks, loading: tasksLoading } = useTasks(username);
+
+  useEffect(() => {
+    if (!userLoading && !tasksLoading) {
+      const timer = setTimeout(() => {
+        setShowLoader(false);
+      }, 300); // Pequeno atraso para garantir que o loader não apareça brevemente
+
+      return () => clearTimeout(timer);
+    }
+  }, [userLoading, tasksLoading]);
 
   const handleViewTask = (task) => setSelectedTask(task);
   const handleCloseModal = () => setSelectedTask(null);
+
+  if (userLoading || tasksLoading) {
+    return (
+      <PageContainer>
+        <Loader>Carregando dados...</Loader>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -149,6 +168,14 @@ const TasksList = styled.div`
 const NoTasksMessage = styled.p`
   text-align: center;
   color: #888;
+  margin-top: 20px;
+`;
+
+const Loader = styled.div`
+  text-align: center;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 500;
   margin-top: 20px;
 `;
 
