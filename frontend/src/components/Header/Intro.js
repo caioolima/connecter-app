@@ -43,7 +43,7 @@ const Intro = () => {
     <>
       <GlobalStyle />
       <IntroContainer>
-        <Title>Connecter</Title>
+        <Title>Connecter Notes</Title>
         <IntroText>Transforme suas tarefas em conquistas com uma gestão simples e eficiente.</IntroText>
         <LoginButton to="/login">Iniciar Sessão</LoginButton>
         <FeaturesContainer>

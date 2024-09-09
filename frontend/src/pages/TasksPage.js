@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import useUserInfo from '../hooks/Tasks/useUserInfo';
-import useTasks from '../hooks/Tasks/useTasks';
+import useUserInfo from '../hooks/Tasks Hooks/useUserInfo';
+import useTasks from '../hooks/Tasks Hooks/useTasks';
 import TaskCard from '../components/Tasks Home/TaskCard';
 import Modal from '../components/Tasks Home/Modal';
 import UserDetails from '../components/Tasks Home/userDetails';
@@ -43,12 +43,14 @@ const TasksPage = () => {
         <p>Visualize suas tarefas e detalhes do usuário</p>
       </Header>
       <Content>
-        <UserDetails 
-          fullName={fullName} 
-          email={email} 
-          createdAt={createdAt} 
-          username={username} 
-        />
+        <UserDetailsSection>
+          <UserDetails 
+            fullName={fullName} 
+            email={email} 
+            createdAt={createdAt} 
+            username={username} 
+          />
+        </UserDetailsSection>
         <TasksSection>
           <SectionTitle>Suas Tarefas</SectionTitle>
           {tasks.length > 0 ? (
@@ -111,15 +113,22 @@ const Header = styled.header`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 40px; /* Aumenta o espaço entre os componentes */
+  padding: 20px; /* Adiciona mais espaço ao redor dos componentes */
 
   @media (min-width: 768px) {
     flex-direction: row;
+    gap: 30px; /* Ajusta o gap para telas maiores */
   }
 `;
 
+const UserDetailsSection = styled.div`
+  flex: 2; /* Define um flex de 1 para UserDetails */
+  margin-right: 20px; /* Adiciona um espaço à direita */
+`;
+
 const TasksSection = styled.section`
-  flex: 2;
+  flex: 3; /* Define um flex de 3 para TasksSection */
   background: linear-gradient(145deg, #1a1a1a, #121212);
   padding: 25px;
   border-radius: 12px;

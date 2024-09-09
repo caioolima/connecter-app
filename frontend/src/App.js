@@ -7,7 +7,7 @@ import GlobalStyle from './styles/GlobalStyles';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterForm';
 import TasksPage from './pages/TasksPage';
-import UserTasksPage from './pages/UserTasksPage';
+import UserTasksPage from './pages/TaskManager';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import IntroPage from './components/Header/Intro';
