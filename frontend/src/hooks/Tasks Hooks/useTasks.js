@@ -11,8 +11,8 @@ const useTasks = (username) => {
       try {
         // Verifica se o username na URL é o mesmo do usuário logado
         const apiUrl = username === userInfo.username
-          ? `http://localhost:5000/api/manager/tasks/${encodeURIComponent(userInfo.username)}`
-          : `http://localhost:5000/api/manager/tasks/${encodeURIComponent(username)}`;
+          ? `https://connecter-app-production.up.railway.app/api/manager/tasks/${encodeURIComponent(userInfo.username)}`
+          : `https://connecter-app-production.up.railway.app/api/manager/tasks/${encodeURIComponent(username)}`;
 
         const response = await fetch(apiUrl, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},

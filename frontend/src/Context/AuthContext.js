@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('E-mail e senha são obrigatórios.');
       }
   
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch('https://connecter-app-production.up.railway.app/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, fullName, email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/register', {
+      const response = await fetch('https://connecter-app-production.up.railway.app//api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

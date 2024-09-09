@@ -13,7 +13,7 @@ const useUserInfo = (username) => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/users/user/${username}`);
+        const response = await fetch(`https://connecter-app-production.up.railway.app/api/users/user/${username}`);
         if (response.ok) {
           const data = await response.json();
           if (data) {

@@ -9,6 +9,11 @@ O Connecter App é uma aplicação web de gerenciamento de tarefas, desenvolvida
 * **Banco de dados:** MySQL
 * **Autenticação:** JWT
 
+## Deploy
+* **Banco de Dados**: O banco MySQL foi criado e está hospedado na Railway.
+* **Backend:** O backend foi deployado na Render.
+* **Frontend:** O frontend foi deployado na Vercel.
+
 ## Instalação
 ### Backend
 1. Clone o repositório:

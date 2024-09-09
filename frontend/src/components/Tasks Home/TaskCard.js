@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const TaskCard = ({ task, onViewTask }) => (
   <Card>
-    <TaskTitle>Título: {task.taskTitle}</TaskTitle>
+    <TaskTitle>{task.taskTitle}</TaskTitle>
     <TaskInfo>Criada em: {formatDate(task.createdAt)}</TaskInfo>
     <ViewButton onClick={onViewTask}>Ver Tarefa</ViewButton>
   </Card>
@@ -31,7 +31,11 @@ const TaskTitle = styled.h3`
   margin: 0;
   color: #fff;
   font-size: 1.25rem;
+  white-space: nowrap;  /* Evita a quebra de linha */
+  overflow: hidden;     /* Esconde o texto que ultrapassar os limites */
+  text-overflow: ellipsis;  /* Adiciona reticências ao final do texto quando for muito longo */
 `;
+
 
 const TaskInfo = styled.p`
   color: #aaa;

@@ -15,7 +15,7 @@ const TaskManager = () => {
   const fetchTasks = async () => {
     if (!token || !userInfo?.username) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/manager/tasks/${userInfo.username}`, {
+      const response = await fetch(`https://connecter-app-production.up.railway.app/api/manager/tasks/${userInfo.username}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -40,7 +40,7 @@ const TaskManager = () => {
   const handleSaveTask = async (task) => {
     try {
       const method = currentTask ? 'PUT' : 'POST';
-      const url = currentTask ? `http://localhost:5000/api/manager/tasks/${currentTask.id}` : 'http://localhost:5000/api/manager/tasks';
+      const url = currentTask ? `https://connecter-app-production.up.railway.app/api/manager/tasks/${currentTask.id}` : 'https://connecter-app-production.up.railway.app/api/manager/tasks';
       const response = await fetch(url, {
         method,
         headers: {
@@ -63,7 +63,7 @@ const TaskManager = () => {
 
   const handleCompleteTask = async (taskId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/manager/tasks/${taskId}/complete`, {
+      const response = await fetch(`https://connecter-app-production.up.railway.app/api/manager/tasks/${taskId}/complete`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ const TaskManager = () => {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/manager/tasks/${taskId}`, {
+      const response = await fetch(`https://connecter-app-production.up.railway.app/api/manager/tasks/${taskId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

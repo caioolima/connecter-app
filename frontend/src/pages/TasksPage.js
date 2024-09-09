@@ -184,8 +184,8 @@ const Loader = styled.div`
   text-align: center;
   color: #fff;
   font-size: 1.2rem;
-  font-weight: 500;
-  margin-top: 20px;
+  font-weight: bold;
+  margin-top: 5rem;
 `;
 
 export default TasksPage;

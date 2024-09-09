@@ -47,7 +47,7 @@ const RegisterForm = () => {
     <Container>
       <Form onSubmit={handleSubmit}>
         <Logo
-          src="https://firebasestorage.googleapis.com/v0/b/connectrip-10205.appspot.com/o/task%2FConnecter-preview.png?alt=media&token=981e1443-05f7-4bfe-bc30-cc5be9bb4c57"
+          src={`${process.env.PUBLIC_URL}/Connecter-form-preview.png`}
           alt="Connecter Intro"
         />
         <Title>Criar seu ID Connecter</Title>
