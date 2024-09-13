@@ -1,7 +1,7 @@
 # Connecter Notes
 
 ## Descrição
-O Connecter Notes é uma aplicação web de gerenciamento de tarefas, desenvolvida com React para o frontend, Node.js e Express para o backend, e MySQL como banco de dados. Permite aos usuários registrar, fazer login e gerenciar suas tarefas.
+O Connecter Notes é uma aplicação web de gerenciamento de tarefas, desenvolvida com React.js para o frontend, Node.js e Express para o backend, e MySQL como banco de dados. Permite aos usuários registrar, fazer login e gerenciar suas tarefas.
 
 ## Tecnologias Utilizadas
 * **Frontend:** React, styled-components
