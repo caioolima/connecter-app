@@ -23,7 +23,6 @@ O Connecter Notes é uma aplicação web de gerenciamento de tarefas, desenvolvi
 
 2. Instale as dependências:
 ```bash
-    cd task-manager
     cd backend-task
     npm install
 ```
